@@ -19,6 +19,8 @@ import {
   Cpu,
   Database,
   ImageOff,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import type {
   SpatialArtifact,
@@ -26,9 +28,15 @@ import type {
   TargetCelestialBody,
   MechanicalHotspot,
 } from '../../data/artifacts';
-import { NASA_HARDWARE_DATA } from '../../data/nasaHardware';
+import { NASA_HARDWARE_DATA, OMAR_STORIES } from '../../data/nasaHardware';
 import type { MacroExperienceMode } from './StoryIntroOverlay';
 import { OnScreenArrowPad } from '../ArrowCameraController';
+import {
+  ArtifactCommsCharacter,
+  playArtifactVoice,
+  stopArtifactVoice,
+  useArtifactVoiceState,
+} from '../inspector/ArtifactCommsCharacter';
 
 interface SpatialHUDProps {
   artifacts: SpatialArtifact[];
@@ -63,38 +71,6 @@ interface SpatialHUDProps {
 
 type DrawerTab = 'story' | 'hotspots';
 
-/**
- * Formats an artifact's first-person narrative into 3 readable paragraphs while avoiding
- * splits inside short abbreviations like "A.D."
- */
-function splitStoryIntoThreeParts(story: string): string[] {
-  const cleaned = story.replace(/\s+/g, ' ').trim();
-  if (!cleaned) return [];
-
-  const rawParts = cleaned.split(/(?<=[.!?]['"’”]?)\s+/);
-  const sentences: string[] = [];
-  for (const part of rawParts) {
-    const trimmed = part.trim();
-    if (!trimmed) continue;
-    if (sentences.length > 0 && sentences[sentences.length - 1].endsWith('A.D.')) {
-      sentences[sentences.length - 1] = `${sentences[sentences.length - 1]} ${trimmed}`;
-    } else {
-      sentences.push(trimmed);
-    }
-  }
-
-  if (sentences.length <= 3) return sentences;
-  if (sentences.length === 4) {
-    return [sentences[0], `${sentences[1]} ${sentences[2]}`, sentences[3]];
-  }
-  const chunk = Math.ceil(sentences.length / 3);
-  return [
-    sentences.slice(0, chunk).join(' '),
-    sentences.slice(chunk, chunk * 2).join(' '),
-    sentences.slice(chunk * 2).join(' '),
-  ].filter(Boolean);
-}
-
 export const SpatialHUD: React.FC<SpatialHUDProps> = ({
   artifacts,
   activeArtifact,
@@ -122,21 +98,20 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
   onOpenPassport,
   onOpenCitations,
 }) => {
-  // Right-side glass overlay drawer is collapsed by default
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<DrawerTab>('story');
   const [photoStage, setPhotoStage] = useState<0 | 1 | 2>(0);
   const [prevArtifactId, setPrevArtifactId] = useState<string | undefined>(activeArtifact?.id);
   const [prevHotspotId, setPrevHotspotId] = useState<string | undefined>(activeHotspot?.id);
 
-  // Default to Story and reset archival photo fallback whenever an artifact is opened or switched
+  const { isSpeaking } = useArtifactVoiceState();
+
   if (activeArtifact?.id !== prevArtifactId) {
     setPrevArtifactId(activeArtifact?.id);
     setActiveTab('story');
     setPhotoStage(0);
   }
 
-  // If the user clicks a 3D engineering pin on the model, open the drawer to the Hotspots tab
   if (activeHotspot?.id !== prevHotspotId) {
     setPrevHotspotId(activeHotspot?.id);
     if (activeHotspot) {
@@ -150,12 +125,10 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       ? artifacts
       : artifacts.filter((a) => a.zone === zoneFilter);
 
-  // Match rich archival metadata from NASA_HARDWARE_DATA
   const nasaHardware = activeArtifact
     ? NASA_HARDWARE_DATA.find((h) => h.id === activeArtifact.id) ?? NASA_HARDWARE_DATA[0]
     : null;
 
-  // STRICT VISIBILITY RULE (Fix #4): Only landed surface artifacts in 1:1 inspection view may show the 1.75m astronaut
   const isLandedSurfaceArtifact =
     activeArtifact !== null &&
     activeArtifact.zone !== 'Deep Space' &&
@@ -167,10 +140,6 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       activeArtifact.id === 'near-shoemaker');
 
   const canShowAstronautToggle = isLandedSurfaceArtifact && tier === 'inspector';
-
-  const storyParagraphs = activeArtifact
-    ? splitStoryIntoThreeParts(activeArtifact.kidFriendlyStory)
-    : [];
 
   const activePhotoSrc =
     nasaHardware && photoStage === 0
@@ -187,7 +156,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       {/* ==================== TOP MINIMAL NAVIGATION BAR + STACKED CONTEXT PILLS ==================== */}
       <div className="flex flex-col items-start gap-1.5 sm:gap-2 w-full">
         <div className="flex flex-col md:flex-row md:flex-wrap md:items-center md:justify-between gap-1.5 md:gap-2.5 w-full">
-          {/* Left: Brand + Mode Switcher (Compact & Horizontally Scrollable on Mobile) */}
+          {/* Left: Brand + Mode Switcher */}
           <div className="pointer-events-auto flex flex-nowrap md:flex-wrap items-center gap-1 max-w-full overflow-x-auto no-scrollbar rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-2 py-1 md:px-2.5 md:py-1.5 backdrop-blur-md shadow-xl">
             <button
               type="button"
@@ -273,7 +242,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             ))}
           </div>
 
-          {/* Right: Reset View (R), Scoped 1:1 AR Button, Passport & Sources (Compact Scrollable Row on Mobile) */}
+          {/* Right: Reset View (R), Scoped 1:1 AR Button, Passport & Sources */}
           <div className="pointer-events-auto flex flex-nowrap md:flex-wrap items-center gap-1.5 max-w-full overflow-x-auto no-scrollbar">
             <button
               type="button"
@@ -337,85 +306,84 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
           </div>
         </div>
 
-      {/* ==================== DOCKED 28PX TRAJECTORY TELEMETRY STRIP (Solar System Mode) ==================== */}
-      {macroMode === 'solar-system' && tier !== 'inspector' && activeArtifact && (
-        <div
-          style={{ height: '28px', wordSpacing: 'normal', letterSpacing: 'normal' }}
-          className="pointer-events-none hidden sm:inline-flex items-center gap-2.5 rounded-md border border-white/[0.08] bg-[#11141A]/85 px-3 font-mono text-[11px] text-slate-300 backdrop-blur-md"
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-[#38BDF8]" />
-          <span className="font-semibold text-white">
-            EARTH → {activeArtifact.targetBody.toUpperCase()}
-          </span>
-          <span className="text-slate-600">·</span>
-          <span>{activeArtifact.distanceFromEarth}</span>
-          <span className="text-slate-600">·</span>
-          <span className="text-slate-400">{activeArtifact.transferDuration}</span>
-        </div>
-      )}
-
-      {/* ==================== 1:1 STAGE SCALE & ASTRONAUT CONTROLS (Top-Left Pill Bar in 1:1 View) ==================== */}
-      {tier === 'inspector' && activeArtifact && (
-        <div
-          style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}
-          className="pointer-events-auto flex flex-nowrap md:flex-wrap items-center gap-1.5 max-w-full overflow-x-auto no-scrollbar"
-        >
-          <button
-            type="button"
-            disabled={arPassthrough}
-            onClick={onToggleNormalizedScale}
-            className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium whitespace-nowrap backdrop-blur-md transition ${
-              arPassthrough
-                ? 'border-white/[0.08] bg-[#11141A]/60 text-slate-500 cursor-not-allowed'
-                : normalizedScale
-                ? 'border-[#F97316]/50 bg-[#11141A]/90 text-[#F97316] cursor-pointer'
-                : 'border-white/[0.08] bg-[#11141A]/90 text-slate-200 hover:border-white/25 cursor-pointer'
-            }`}
+        {/* DOCKED 28PX TRAJECTORY TELEMETRY STRIP (Solar System Mode) */}
+        {macroMode === 'solar-system' && tier !== 'inspector' && activeArtifact && (
+          <div
+            style={{ height: '28px', wordSpacing: 'normal', letterSpacing: 'normal' }}
+            className="pointer-events-none hidden sm:inline-flex items-center gap-2.5 rounded-md border border-white/[0.08] bg-[#11141A]/85 px-3 font-mono text-[11px] text-slate-300 backdrop-blur-md"
           >
-            {normalizedScale && !arPassthrough ? (
-              <Minimize2 className="h-3.5 w-3.5 shrink-0" />
-            ) : (
-              <Maximize2 className="h-3.5 w-3.5 text-[#38BDF8] shrink-0" />
-            )}
-            <span>{normalizedScale ? 'Normalized Scale' : '1:1 True Metric Scale'}</span>
-          </button>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#38BDF8]" />
+            <span className="font-semibold text-white">
+              EARTH → {activeArtifact.targetBody.toUpperCase()}
+            </span>
+            <span className="text-slate-600">·</span>
+            <span>{activeArtifact.distanceFromEarth}</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-slate-400">{activeArtifact.transferDuration}</span>
+          </div>
+        )}
 
-          <button
-            type="button"
-            onClick={onToggleHotspots}
-            className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium whitespace-nowrap backdrop-blur-md transition cursor-pointer ${
-              showHotspots
-                ? 'border-[#38BDF8]/50 bg-[#11141A]/90 text-[#38BDF8]'
-                : 'border-white/[0.08] bg-[#11141A]/90 text-slate-400 hover:text-white'
-            }`}
+        {/* 1:1 STAGE SCALE & ASTRONAUT CONTROLS */}
+        {tier === 'inspector' && activeArtifact && (
+          <div
+            style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}
+            className="pointer-events-auto flex flex-nowrap md:flex-wrap items-center gap-1.5 max-w-full overflow-x-auto no-scrollbar"
           >
-            <Tag className="h-3.5 w-3.5 shrink-0" />
-            <span>3D Pins: {showHotspots ? 'ON' : 'OFF'}</span>
-          </button>
-
-          {/* FIX #4: 1.75m Astronaut Scale Toggle Pill ONLY for landed surface artifacts in 1:1 inspection view */}
-          {canShowAstronautToggle && (
             <button
               type="button"
-              onClick={onToggleAstronautScale}
+              disabled={arPassthrough}
+              onClick={onToggleNormalizedScale}
+              className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium whitespace-nowrap backdrop-blur-md transition ${
+                arPassthrough
+                  ? 'border-white/[0.08] bg-[#11141A]/60 text-slate-500 cursor-not-allowed'
+                  : normalizedScale
+                  ? 'border-[#F97316]/50 bg-[#11141A]/90 text-[#F97316] cursor-pointer'
+                  : 'border-white/[0.08] bg-[#11141A]/90 text-slate-200 hover:border-white/25 cursor-pointer'
+              }`}
+            >
+              {normalizedScale && !arPassthrough ? (
+                <Minimize2 className="h-3.5 w-3.5 shrink-0" />
+              ) : (
+                <Maximize2 className="h-3.5 w-3.5 text-[#38BDF8] shrink-0" />
+              )}
+              <span>{normalizedScale ? 'Normalized Scale' : '1:1 True Metric Scale'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onToggleHotspots}
               className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium whitespace-nowrap backdrop-blur-md transition cursor-pointer ${
-                showAstronautScale
+                showHotspots
                   ? 'border-[#38BDF8]/50 bg-[#11141A]/90 text-[#38BDF8]'
                   : 'border-white/[0.08] bg-[#11141A]/90 text-slate-400 hover:text-white'
               }`}
             >
-              <UserCheck className="h-3.5 w-3.5 shrink-0" />
-              <span>1.75m Astronaut: {showAstronautScale ? 'ON' : 'OFF'}</span>
+              <Tag className="h-3.5 w-3.5 shrink-0" />
+              <span>3D Pins: {showHotspots ? 'ON' : 'OFF'}</span>
             </button>
-          )}
-        </div>
-      )}
+
+            {canShowAstronautToggle && (
+              <button
+                type="button"
+                onClick={onToggleAstronautScale}
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium whitespace-nowrap backdrop-blur-md transition cursor-pointer ${
+                  showAstronautScale
+                    ? 'border-[#38BDF8]/50 bg-[#11141A]/90 text-[#38BDF8]'
+                    : 'border-white/[0.08] bg-[#11141A]/90 text-slate-400 hover:text-white'
+                }`}
+              >
+                <UserCheck className="h-3.5 w-3.5 shrink-0" />
+                <span>1.75m Astronaut: {showAstronautScale ? 'ON' : 'OFF'}</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* ==================== FIX #6: SLEEK RIGHT-SIDE GLASS OVERLAY DRAWER (4 Clean Tabs) ==================== */}
+      {/* ==================== RIGHT-SIDE GLASS OVERLAY DRAWER ==================== */}
       {activeArtifact && nasaHardware && isDrawerOpen && (
         <aside className="pointer-events-auto fixed top-0 right-0 bottom-0 z-40 flex h-[100dvh] w-full max-w-[440px] flex-col border-l border-white/10 bg-[#0B0E14]/92 backdrop-blur-xl shadow-2xl pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-          {/* Drawer Header: Status Badge, Artifact Title & × Close */}
+          {/* Drawer Header */}
           <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 pt-5 pb-4">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-1.5">
@@ -443,11 +411,11 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             </div>
           </div>
 
-          {/* 2 Clean Evenly Spaced Tabs: Story | Hotspots */}
+          {/* 2 Tabs: Story | Hotspots */}
           <div className="grid grid-cols-2 gap-1.5 border-b border-white/10 bg-white/[0.02] px-4 py-2">
             {(
               [
-                { id: 'story', label: 'Story', icon: BookOpen },
+                { id: 'story', label: 'Story & Voice', icon: BookOpen },
                 { id: 'hotspots', label: 'Hotspots', icon: Cpu },
               ] as const
             ).map((tab) => {
@@ -473,7 +441,6 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
 
           {/* Drawer Body Content */}
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
-            {/* TAB 1: NASA PHOTO + 3-PART STORY + 2x2 TELEMETRY GRID + DATA SOURCE */}
             {activeTab === 'story' && (
               <div style={{ wordSpacing: 'normal', letterSpacing: 'normal' }} className="space-y-4">
                 {/* Top Archival NASA Mission / Orbital Photograph */}
@@ -509,21 +476,14 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                   </div>
                 </div>
 
-                {/* 3-Part Story Narrative with Generous Line Height */}
-                <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 space-y-3">
-                  {storyParagraphs.map((para, pIdx) => (
-                    <p
-                      key={`${activeArtifact.id}-p-${pIdx}`}
-                      style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}
-                      className="text-xs sm:text-sm leading-relaxed text-slate-100"
-                    >
-                      {pIdx === 0 ? `“${para}` : para}
-                      {pIdx === storyParagraphs.length - 1 ? '”' : ''}
-                    </p>
-                  ))}
-                </div>
+                {/* Black-Box Talking Character + Live Transcript + Q&A Engine */}
+                <ArtifactCommsCharacter
+                  artifactId={activeArtifact.id}
+                  artifactName={activeArtifact.name.split(' (')[0]}
+                  story={OMAR_STORIES[activeArtifact.id] || activeArtifact.kidFriendlyStory}
+                />
 
-                {/* Crisp 2x2 Grid: Location, Active Years, Why It Stopped, Science Unlocked */}
+                {/* 2x2 Telemetry Grid: Location, Active Years, Why It Stopped, Science Unlocked */}
                 <div className="grid grid-cols-2 gap-2.5">
                   <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3">
                     <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
@@ -581,7 +541,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
               </div>
             )}
 
-            {/* TAB 2: HOTSPOTS (3-Part Engineering List Highlighting 3D Model Pins) */}
+            {/* TAB 2: HOTSPOTS */}
             {activeTab === 'hotspots' && (
               <div className="space-y-3">
                 <p className="text-xs text-slate-400">
@@ -627,7 +587,6 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
 
       {/* ==================== BOTTOM COMPACT ACTION BAR + ARTIFACT SELECTOR DOCK ==================== */}
       <div className="mt-auto mb-4 md:mb-0 pb-[calc(1rem+env(safe-area-inset-bottom))] md:pb-0 flex flex-col items-center gap-2 w-full">
-        {/* Compact Floating Bar for Active Artifact */}
         {activeArtifact && (
           <div className="pointer-events-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-3 py-2 sm:px-3.5 backdrop-blur-md shadow-xl max-w-3xl w-full">
             {/* Left: Prev/Next + Artifact Name & Celestial Zone Badge */}
@@ -675,8 +634,39 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
               </div>
             </div>
 
-            {/* Right: 1:1 Surface Switch + More Info Drawer Toggle (Generous >=42px Mobile Tap Targets) */}
+            {/* Right: Voice Toggle + 1:1 Surface Switch + More Info Drawer Toggle */}
             <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+              <button
+                type="button"
+                onClick={() =>
+                  isSpeaking
+                    ? stopArtifactVoice()
+                    : playArtifactVoice(
+                        activeArtifact.id,
+                        OMAR_STORIES[activeArtifact.id] || activeArtifact.kidFriendlyStory,
+                        { forceRestart: true }
+                      )
+                }
+                className={`flex flex-1 sm:flex-initial min-h-[42px] md:min-h-[32px] items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition cursor-pointer whitespace-nowrap ${
+                  isSpeaking
+                    ? 'border-[#38BDF8]/60 bg-[#38BDF8]/15 text-[#38BDF8]'
+                    : 'border-white/[0.08] bg-white/[0.04] text-slate-200 hover:bg-white/[0.1] hover:text-white'
+                }`}
+                title={isSpeaking ? 'Stop Voice Transmission' : 'Play Spacecraft Voice Log'}
+              >
+                {isSpeaking ? (
+                  <>
+                    <VolumeX className="h-3.5 w-3.5 animate-pulse shrink-0" />
+                    <span>Stop</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="h-3.5 w-3.5 text-[#38BDF8] shrink-0" />
+                    <span>Listen</span>
+                  </>
+                )}
+              </button>
+
               {tier !== 'inspector' ? (
                 <button
                   type="button"
@@ -699,7 +689,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                 </button>
               )}
 
-              {/* More Info Button (Slides Open/Closed the Sleek Right Drawer) */}
+              {/* More Info Button */}
               <button
                 type="button"
                 onClick={() => setIsDrawerOpen((prev) => !prev)}
@@ -764,7 +754,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
         </div>
       </div>
 
-      {/* Minimal On-Screen Arrow D-Pad (Bottom-Right Corner) */}
+      {/* Minimal On-Screen Arrow D-Pad */}
       <OnScreenArrowPad />
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { STORIES } from "./stories";
+import { OMAR_STORIES } from "../../data/nasaHardware";
 
 interface ArtifactCommsProps {
   artifactId: string;
@@ -109,78 +109,164 @@ const ARTIFACT_COMMS_DATA: Record<string, ArtifactQA> = {
   }
 };
 
+// ==================== SHARED ANTI-SPAM VOICE ENGINE ====================
+interface VoiceStore {
+  isSpeaking: boolean;
+  currentArtifactId: string | null;
+  activeCaption: string;
+  utteranceId: number;
+}
+
+const voiceStore: VoiceStore = {
+  isSpeaking: false,
+  currentArtifactId: null,
+  activeCaption: OMAR_STORIES["apollo-11-eagle"] || "",
+  utteranceId: 0,
+};
+
+const voiceListeners = new Set<() => void>();
+
+function notifyVoiceListeners() {
+  voiceListeners.forEach((fn) => fn());
+}
+
+function getPreferredMichelleVoice(): SpeechSynthesisVoice | null {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+
+  const warmFemalePriority = [
+    "Microsoft Michelle Online (Natural)",
+    "Michelle",
+    "Ana",
+    "Ava",
+    "Aria",
+    "Emma",
+    "Jenny",
+    "Sonia",
+    "Google US English",
+    "Google UK English Female",
+    "Samantha",
+    "Zira",
+  ];
+
+  return (
+    warmFemalePriority
+      .map((name) => voices.find((v) => v.lang.startsWith("en") && v.name.includes(name)))
+      .find(Boolean) ||
+    voices.find((v) => v.lang.startsWith("en") && !v.name.includes("David")) ||
+    voices[0] ||
+    null
+  );
+}
+
+if (typeof window !== "undefined" && "speechSynthesis" in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    getPreferredMichelleVoice();
+  };
+}
+
+/**
+ * Plays an artifact's first-person transmission.
+ * Anti-spam guard: if the user spam-clicks the SAME artifact while it is already talking
+ * (and `forceRestart` is not set), the extra click is ignored so audio never stutters.
+ */
+export function playArtifactVoice(
+  artifactId: string,
+  customText?: string,
+  options?: { forceRestart?: boolean }
+): void {
+  const script = customText || OMAR_STORIES[artifactId] || "";
+  if (!script) return;
+
+  if (
+    !options?.forceRestart &&
+    voiceStore.isSpeaking &&
+    voiceStore.currentArtifactId === artifactId
+  ) {
+    return;
+  }
+
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+  window.speechSynthesis.cancel();
+  const nextId = ++voiceStore.utteranceId;
+
+  voiceStore.currentArtifactId = artifactId;
+  voiceStore.activeCaption = script;
+  voiceStore.isSpeaking = true;
+  notifyVoiceListeners();
+
+  const utterance = new SpeechSynthesisUtterance(script);
+  const chosenVoice = getPreferredMichelleVoice();
+  if (chosenVoice) utterance.voice = chosenVoice;
+  utterance.pitch = 1.0;
+  utterance.rate = 0.98;
+
+  utterance.onstart = () => {
+    if (voiceStore.utteranceId === nextId) {
+      voiceStore.isSpeaking = true;
+      notifyVoiceListeners();
+    }
+  };
+
+  utterance.onend = () => {
+    if (voiceStore.utteranceId === nextId) {
+      voiceStore.isSpeaking = false;
+      notifyVoiceListeners();
+    }
+  };
+
+  utterance.onerror = () => {
+    if (voiceStore.utteranceId === nextId) {
+      voiceStore.isSpeaking = false;
+      notifyVoiceListeners();
+    }
+  };
+
+  window.speechSynthesis.speak(utterance);
+}
+
+export function stopArtifactVoice(): void {
+  voiceStore.utteranceId++;
+  voiceStore.isSpeaking = false;
+  voiceStore.currentArtifactId = null;
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+  notifyVoiceListeners();
+}
+
+export function useArtifactVoiceState() {
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const listener = () => setTick((t) => t + 1);
+    voiceListeners.add(listener);
+    return () => {
+      voiceListeners.delete(listener);
+    };
+  }, []);
+
+  return {
+    isSpeaking: voiceStore.isSpeaking,
+    currentArtifactId: voiceStore.currentArtifactId,
+    activeCaption: voiceStore.activeCaption,
+  };
+}
+
 export const ArtifactCommsCharacter: React.FC<ArtifactCommsProps> = ({
   artifactId,
   artifactName,
   story,
 }) => {
-  const resolvedStory = story || STORIES[artifactId] || "";
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [activeCaption, setActiveCaption] = useState(resolvedStory);
+  const resolvedStory = story || OMAR_STORIES[artifactId] || "";
   const [question, setQuestion] = useState("");
-  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const { isSpeaking, currentArtifactId, activeCaption } = useArtifactVoiceState();
 
   const profile = ARTIFACT_COMMS_DATA[artifactId] || ARTIFACT_COMMS_DATA["apollo-11-eagle"];
-
-  useEffect(() => {
-    const pickWarmVoice = () => {
-      if (!("speechSynthesis" in window)) return;
-      const voices = window.speechSynthesis.getVoices();
-      if (!voices.length) return;
-
-      const warmFemalePriority = [
-        "Michelle",
-        "Ana",
-        "Ava",
-        "Aria",
-        "Emma",
-        "Jenny",
-        "Sonia",
-        "Google US English",
-        "Google UK English Female",
-        "Samantha",
-        "Zira"
-      ];
-
-      const match =
-        warmFemalePriority
-          .map((name) => voices.find((v) => v.lang.startsWith("en") && v.name.includes(name)))
-          .find(Boolean) ||
-        voices.find((v) => v.lang.startsWith("en") && !v.name.includes("David")) ||
-        voices[0];
-
-      setSelectedVoice(match || null);
-    };
-
-    pickWarmVoice();
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.onvoiceschanged = pickWarmVoice;
-    }
-  }, []);
-
-  useEffect(() => {
-    setActiveCaption(resolvedStory);
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-    setIsSpeaking(false);
-  }, [artifactId, resolvedStory]);
-
-  const speakText = (text: string) => {
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    setActiveCaption(text);
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    if (selectedVoice) utterance.voice = selectedVoice;
-    utterance.pitch = 1.0;
-    utterance.rate = 0.98;
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    window.speechSynthesis.speak(utterance);
-  };
+  const displayedCaption =
+    currentArtifactId === artifactId && activeCaption ? activeCaption : resolvedStory;
 
   const handleAskQuestion = (rawQuery: string) => {
     const q = rawQuery.toLowerCase();
@@ -200,69 +286,23 @@ export const ArtifactCommsCharacter: React.FC<ArtifactCommsProps> = ({
       reply = `Great question! Here is a secret from my black box: ${profile.funFact}`;
     }
 
-    speakText(reply);
+    playArtifactVoice(artifactId, reply, { forceRestart: true });
     setQuestion("");
   };
 
   return (
-    <div className="p-4 rounded-xl bg-slate-950/90 border border-cyan-500/40 text-slate-100 space-y-3">
+    <div className="p-4 rounded-xl bg-slate-950/90 border border-[#38BDF8]/35 text-slate-100 space-y-3">
       {/* Talking Hologram Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${isSpeaking ? "border-cyan-400 bg-cyan-500/20 animate-pulse" : "border-slate-600 bg-slate-800"}`}>
-            <span className="text-xs font-mono text-cyan-300">{isSpeaking ? "LIVE" : "1420"}</span>
-          </div>
-          <div>
-            <p className="text-xs font-mono uppercase tracking-wider text-cyan-400">Black-Box Voice Link</p>
-            <h4 className="font-bold text-sm">{artifactName}</h4>
-          </div>
-        </div>
-
-        <button
-          onClick={() => (isSpeaking ? window.speechSynthesis.cancel() : speakText(resolvedStory))}
-          className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition"
-        >
-          {isSpeaking ? "Stop Audio" : "Play Story Log"}
-        </button>
-      </div>
-
-      {/* Live Transcript Box */}
-      <p className="text-sm leading-relaxed text-slate-200 bg-slate-900/80 p-3 rounded-lg border border-slate-800">
-        "{activeCaption}"
-      </p>
-
-      {/* Instant Question Chips */}
-      <div className="flex flex-wrap gap-2">
-        <button onClick={() => handleAskQuestion("landing")} className="text-xs px-2.5 py-1 rounded-full bg-slate-800 hover:bg-cyan-900/50 border border-slate-700 text-cyan-200">
-          How did you land?
-        </button>
-        <button onClick={() => handleAskQuestion("discover")} className="text-xs px-2.5 py-1 rounded-full bg-slate-800 hover:bg-cyan-900/50 border border-slate-700 text-cyan-200">
-          Biggest discovery?
-        </button>
-        <button onClick={() => handleAskQuestion("silent")} className="text-xs px-2.5 py-1 rounded-full bg-slate-800 hover:bg-cyan-900/50 border border-slate-700 text-cyan-200">
-          Why did you go silent?
-        </button>
-        <button onClick={() => handleAskQuestion("power")} className="text-xs px-2.5 py-1 rounded-full bg-slate-800 hover:bg-cyan-900/50 border border-slate-700 text-cyan-200">
-          What powered you?
-        </button>
-      </div>
-
-      {/* Custom Kid Question Input */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (question.trim()) handleAskQuestion(question);
-        }}
-        className="flex gap-2"
-      >
-        <input
-          type="text"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          placeholder={`Ask ${artifactName} a question...`}
-          className="flex-1 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400"
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className={`w-9 h-9 shrink-0 rounded-full flex items-center justify-center border ${ isSpeaking ? "border-[#38BDF8] bg-[#38BDF8]/20 animate-pulse" : "border-slate-600 bg-slate-800" }`} > <span className="text-[11px] font-mono text-[#38BDF8]"> {isSpeaking ? "LIVE" : "1420"} </span> </div> <div className="min-w-0"> <p className="text-[10px] font-mono uppercase tracking-wider text-[#38BDF8]"> Black-Box Voice Link </p> <h4 className="font-semibold text-xs sm:text-sm truncate">{artifactName}</h4> </div> </div>  <button type="button" onClick={() => isSpeaking ? stopArtifactVoice() : playArtifactVoice(artifactId, resolvedStory, { forceRestart: true }) } className="shrink-0 px-3 py-1.5 rounded-lg bg-[#38BDF8] hover:brightness-110 text-[#090B0E] font-semibold text-xs transition cursor-pointer" > {isSpeaking ? "Stop Audio" : "Replay Log"} </button> </div>  {/* Live Transcript Box */} <p className="text-xs sm:text-sm leading-relaxed text-slate-100 bg-white/[0.03] p-3 rounded-lg border border-white/[0.08]"> “{displayedCaption}” </p>  {/* Instant Question Chips */} <div className="flex flex-wrap gap-1.5"> <button type="button" onClick={() => handleAskQuestion("landing")} className="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-[#38BDF8]/20 border border-white/10 text-cyan-200 transition cursor-pointer" > How did you land? </button> <button type="button" onClick={() => handleAskQuestion("discover")} className="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-[#38BDF8]/20 border border-white/10 text-cyan-200 transition cursor-pointer" > Biggest discovery? </button> <button type="button" onClick={() => handleAskQuestion("silent")} className="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-[#38BDF8]/20 border border-white/10 text-cyan-200 transition cursor-pointer" > Why did you go silent? </button> <button type="button" onClick={() => handleAskQuestion("power")} className="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-[#38BDF8]/20 border border-white/10 text-cyan-200 transition cursor-pointer" > What powered you? </button> </div>  {/* Custom Question Input */} <form onSubmit={(e) => { e.preventDefault(); if (question.trim()) handleAskQuestion(question); }} className="flex gap-2" > <input type="text" value={question} onChange={(e) => setQuestion(e.target.value)} placeholder={`Ask ${artifactName} a question...`}
+          className="flex-1 px-3 py-1.5 rounded-lg bg-slate-900 border border-white/15 text-xs text-white focus:outline-none focus:border-[#38BDF8]"
         />
-        <button type="submit" className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold">
+        <button
+          type="submit"
+          className="px-3 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/[0.15] text-[#38BDF8] text-xs font-semibold transition cursor-pointer"
+        >
           Ask
         </button>
       </form>
