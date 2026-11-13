@@ -91,13 +91,34 @@ const NormalizedGlbInner: React.FC<{
           if ('flatShading' in clonedMat) {
             (clonedMat as THREE.MeshStandardMaterial).flatShading = false;
           }
+
+          if (isAstronaut) {
+            // Force 100% solid opaque rendering on the astronaut (clears glTF alpha & transmission)
+            clonedMat.transparent = false;
+            clonedMat.opacity = 1;
+            clonedMat.alphaTest = 0;
+            clonedMat.depthWrite = true;
+            clonedMat.depthTest = true;
+            clonedMat.side = THREE.FrontSide;
+            if ('alphaMap' in clonedMat) {
+              (clonedMat as THREE.MeshStandardMaterial).alphaMap = null;
+            }
+            if ('transmission' in clonedMat) {
+              const physMat = clonedMat as THREE.MeshPhysicalMaterial;
+              physMat.transmission = 0;
+              physMat.transmissionMap = null;
+              physMat.thickness = 0;
+              physMat.ior = 1.5;
+            }
+          }
+
           if ('metalness' in clonedMat && 'roughness' in clonedMat) {
             const stdMat = clonedMat as THREE.MeshStandardMaterial;
 
             if (isAstronaut) {
               // Keep astronaut fabric, visor, and life-support pack crisp and well-lit
-              stdMat.metalness = Math.min(0.25, Math.max(0.0, stdMat.metalness));
-              stdMat.roughness = Math.max(0.55, Math.min(0.86, stdMat.roughness));
+              stdMat.metalness = Math.min(stdMat.metalness ?? 0.1, 0.2);
+              stdMat.roughness = Math.max(stdMat.roughness ?? 0.65, 0.55);
               stdMat.envMapIntensity = 1.2;
             } else {
               stdMat.metalness = Math.min(0.75, Math.max(0.0, stdMat.metalness));

@@ -22,17 +22,19 @@ interface PlanetaryMicroSiteProps {
 
 /**
  * Deterministic terrain elevation helper so both the 128-segment mesh and the 36 instanced
- * rocks/pebbles sit at the exact same surface height, while keeping r < 4.5m strictly at y = 0.
+ * rocks/pebbles sit at the exact same surface height, while keeping the central landing zone
+ * strictly flat at y = 0 out to `exclusionRadius`.
  */
 function sampleTerrainElevation(
   x: number,
   z: number,
-  targetBody: TargetCelestialBody
+  targetBody: TargetCelestialBody,
+  exclusionRadius = 5.5
 ): number {
   const r = Math.hypot(x, z);
-  if (r <= 4.5) return 0;
+  if (r <= exclusionRadius) return 0;
 
-  const undulationBlend = THREE.MathUtils.smoothstep(r, 4.5, 9.2);
+  const undulationBlend = THREE.MathUtils.smoothstep(r, exclusionRadius, exclusionRadius + 4.7);
   const rimTaper = 1.0 - THREE.MathUtils.smoothstep(r, 20.0, 26.0) * 0.6;
 
   // Multi-scale crater & ridge displacement
@@ -73,7 +75,8 @@ function sampleTerrainElevation(
  * while sculpting craters, crater rims, and ridges toward the outer rim.
  */
 function buildSculpturalTerrainPlinthGeometry(
-  targetBody: TargetCelestialBody
+  targetBody: TargetCelestialBody,
+  exclusionRadius = 5.5
 ): THREE.BufferGeometry {
   const geom = new THREE.RingGeometry(0, 26, 128, 72);
   geom.rotateX(-Math.PI / 2);
@@ -82,7 +85,7 @@ function buildSculpturalTerrainPlinthGeometry(
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
     const z = pos.getZ(i);
-    pos.setY(i, sampleTerrainElevation(x, z, targetBody));
+    pos.setY(i, sampleTerrainElevation(x, z, targetBody, exclusionRadius));
   }
 
   geom.computeVertexNormals();
@@ -262,9 +265,35 @@ export const PlanetaryMicroSite: React.FC<PlanetaryMicroSiteProps> = ({
       artifact.zone === 'Mars' ||
       artifact.id === 'near-shoemaker');
 
+  // Strict central rock-free & flat-terrain exclusion radius (>= 5.5m or artifactBoundingRadius + 2.8m)
+  const artifactBoundingRadius = useMemo(() => {
+    const rawHalfDiag = 0.5 * Math.hypot(artifact.dimensions.width, artifact.dimensions.depth);
+    if (artifact.glbUrl) {
+      const rawSpan = Math.max(
+        artifact.dimensions.width,
+        artifact.dimensions.height,
+        artifact.dimensions.depth
+      );
+      const glbTargetSpan = Math.min(3.6, Math.max(2.0, rawSpan));
+      return Math.max(glbTargetSpan * 0.5, rawHalfDiag) * scaleFactor;
+    }
+    return rawHalfDiag * scaleFactor;
+  }, [
+    artifact.dimensions.width,
+    artifact.dimensions.height,
+    artifact.dimensions.depth,
+    artifact.glbUrl,
+    scaleFactor,
+  ]);
+
+  const landingExclusionRadius = useMemo(
+    () => Math.max(5.5, artifactBoundingRadius + 2.8),
+    [artifactBoundingRadius]
+  );
+
   const plinthGeometry = useMemo(
-    () => buildSculpturalTerrainPlinthGeometry(artifact.targetBody),
-    [artifact.targetBody]
+    () => buildSculpturalTerrainPlinthGeometry(artifact.targetBody, landingExclusionRadius),
+    [artifact.targetBody, landingExclusionRadius]
   );
 
   const { bumpMap, roughnessMap } = useMemo(
@@ -274,11 +303,14 @@ export const PlanetaryMicroSite: React.FC<PlanetaryMicroSiteProps> = ({
 
   const marsFresnelMat = useMemo(() => createMarsAtmosphericFresnelMaterial(), []);
 
-  // Scatter 36 instanced low-poly angular rocks & pebbles around the outer perimeter (r = 4.9m to 19.5m),
-  // leaving the central 4.5m landing zone completely clear.
+  // Scatter 36 instanced low-poly angular rocks & pebbles strictly outside landingExclusionRadius
+  // so zero rocks or boulders spawn near any artifact or the 1.75m astronaut.
   const rockMatrices = useMemo(() => {
     const dummy = new THREE.Object3D();
     const matrices: THREE.Matrix4[] = [];
+    const minRockRadius = landingExclusionRadius + 0.65;
+    const radialSpan = Math.max(8.5, 20.5 - minRockRadius);
+
     for (let i = 0; i < ROCK_COUNT; i++) {
       const s1 = Math.sin(i * 12.9898 + 1.7) * 43758.5453;
       const r1 = s1 - Math.floor(s1);
@@ -288,11 +320,12 @@ export const PlanetaryMicroSite: React.FC<PlanetaryMicroSiteProps> = ({
       const r3 = s3 - Math.floor(s3);
 
       const angle = (i / ROCK_COUNT) * Math.PI * 2 + (r1 - 0.5) * 0.22;
-      // Keep central 4.5m landing zone clear: rocks start at radius 4.9m out to 19.0m
-      const radius = 4.9 + r2 * 14.1;
+      const radius = minRockRadius + r2 * radialSpan;
+      if (radius <= landingExclusionRadius + 0.45) continue;
+
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
-      const groundY = sampleTerrainElevation(x, z, artifact.targetBody);
+      const groundY = sampleTerrainElevation(x, z, artifact.targetBody, landingExclusionRadius);
 
       const baseScale = i % 4 === 0 ? 0.24 + r1 * 0.22 : 0.09 + r1 * 0.13;
       const sy = baseScale * (0.55 + r2 * 0.35);
@@ -308,7 +341,7 @@ export const PlanetaryMicroSite: React.FC<PlanetaryMicroSiteProps> = ({
       matrices.push(dummy.matrix.clone());
     }
     return matrices;
-  }, [artifact.targetBody]);
+  }, [artifact.targetBody, landingExclusionRadius]);
 
   useEffect(() => {
     const inst = rocksInstancedRef.current;
@@ -382,12 +415,12 @@ export const PlanetaryMicroSite: React.FC<PlanetaryMicroSiteProps> = ({
       {/* 4. Soft Hemisphere Lift */}
       <hemisphereLight args={['#E2E8F0', '#262932', 0.85]} />
 
-      {/* 5. Dedicated Front-Angled Astronaut Fill Light so suit, visor, and details read crisply against the sky */}
+      {/* 5. Dedicated Front-Angled Astronaut Fill Light so suit, visor, and details read crisply */}
       {showAstronautScale && isLandedSurfaceArtifact && (
         <pointLight
-          position={[2.45, 1.65, 2.7]}
-          intensity={16}
-          distance={6.5}
+          position={[3.45, 1.9, 2.9]}
+          intensity={1.5}
+          distance={5.5}
           decay={2}
           color="#F8FAFC"
         />
@@ -436,9 +469,9 @@ export const PlanetaryMicroSite: React.FC<PlanetaryMicroSiteProps> = ({
             />
           </instancedMesh>
 
-          {/* Subtle 4.5m Flat Landing Zone Calibration Ring */}
+          {/* Subtle Flat Landing Zone Calibration Ring */}
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.004, 0]}>
-            <ringGeometry args={[4.46, 4.5, 128]} />
+            <ringGeometry args={[landingExclusionRadius - 0.04, landingExclusionRadius, 128]} />
             <meshBasicMaterial
               color="#38BDF8"
               transparent
@@ -495,16 +528,16 @@ export const PlanetaryMicroSite: React.FC<PlanetaryMicroSiteProps> = ({
                       onSelectHotspot(isSelected ? null : hs);
                     }}
                     style={{ pointerEvents: 'auto', wordSpacing: 'normal', letterSpacing: 'normal' }}
-                    className={`spatial-html-label flex items-center gap-1.5 rounded-md border px-2 py-0.5 font-mono text-[11px] font-medium shadow-md backdrop-blur-md transition-all cursor-pointer whitespace-nowrap ${
+                    className={`spatial-html-label flex items-center gap-1.5 rounded-md border px-1.5 sm:px-2 py-0.5 font-mono text-[10px] sm:text-[11px] font-medium max-w-[205px] sm:max-w-none shadow-md backdrop-blur-md transition-all cursor-pointer whitespace-nowrap ${
                       isSelected
                         ? 'border-[#38BDF8] bg-[#38BDF8] text-[#090B0E] font-semibold scale-105'
                         : 'border-white/15 bg-[#11141A]/90 text-slate-100 hover:border-[#38BDF8]/60'
                     }`}
                   >
-                    <span className="flex h-3.5 w-3.5 items-center justify-center rounded-sm bg-white/10 text-[9px] font-bold">
+                    <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm bg-white/10 text-[9px] font-bold">
                       {index + 1}
                     </span>
-                    <span>{hs.title}</span>
+                    <span className="truncate">{hs.title}</span>
                   </button>
                 </div>
               </Html>
@@ -514,23 +547,34 @@ export const PlanetaryMicroSite: React.FC<PlanetaryMicroSiteProps> = ({
 
       {/* ==================== FIX #4: 1.75m ASTRONAUT GLB FACING FORWARD (Landed Surface Only) ==================== */}
       {showAstronautScale && isLandedSurfaceArtifact && (
-        <group position={[2.45, 0, 0.5]}>
-          <NormalizedGlbModel
-            url={ASTRONAUT_GLB_URL}
-            targetSize={1.75}
-            fitByHeight
-            receiveShadow={false}
-            innerRotation={[0, Math.PI, 0]}
+        <>
+          <ContactShadows
+            position={[2.45, 0.015, 0.5]}
+            opacity={0.65}
+            scale={3.2}
+            blur={1.4}
+            far={2.5}
+            resolution={256}
+            color="#000000"
           />
-          <Html position={[0, 1.92, 0]} center style={{ pointerEvents: 'none' }}>
-            <div
-              style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}
-              className="spatial-html-label pointer-events-none whitespace-nowrap rounded-md border border-white/10 bg-[#11141A]/90 px-2 py-0.5 font-mono text-[10px] text-slate-200 backdrop-blur-md"
-            >
-              Astronaut Scale · 1.75 m
-            </div>
-          </Html>
-        </group>
+          <group position={[2.45, 0, 0.5]}>
+            <NormalizedGlbModel
+              url={ASTRONAUT_GLB_URL}
+              targetSize={1.75}
+              fitByHeight
+              receiveShadow={false}
+              innerRotation={[0, Math.PI, 0]}
+            />
+            <Html position={[0, 1.92, 0]} center style={{ pointerEvents: 'none' }}>
+              <div
+                style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}
+                className="spatial-html-label pointer-events-none whitespace-nowrap rounded-md border border-white/10 bg-[#11141A]/90 px-2 py-0.5 font-mono text-[10px] text-slate-200 backdrop-blur-md"
+              >
+                Astronaut Scale · 1.75 m
+              </div>
+            </Html>
+          </group>
+        </>
       )}
     </group>
   );

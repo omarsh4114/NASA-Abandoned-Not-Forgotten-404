@@ -182,20 +182,20 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
   return (
     <div
       style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}
-      className="pointer-events-none fixed inset-0 z-30 flex flex-col justify-between p-3 sm:p-5 select-none"
+      className="pointer-events-none fixed inset-0 z-30 flex h-[100dvh] flex-col justify-between px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 sm:p-5 select-none"
     >
       {/* ==================== TOP MINIMAL NAVIGATION BAR + STACKED CONTEXT PILLS ==================== */}
-      <div className="flex flex-col items-start gap-2 w-full">
-        <div className="flex flex-wrap items-center justify-between gap-2.5 w-full">
-          {/* Left: Brand + Mode Switcher */}
-          <div className="pointer-events-auto flex flex-wrap items-center gap-1 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-2.5 py-1.5 backdrop-blur-md shadow-xl">
+      <div className="flex flex-col items-start gap-1.5 sm:gap-2 w-full">
+        <div className="flex flex-col md:flex-row md:flex-wrap md:items-center md:justify-between gap-1.5 md:gap-2.5 w-full">
+          {/* Left: Brand + Mode Switcher (Compact & Horizontally Scrollable on Mobile) */}
+          <div className="pointer-events-auto flex flex-nowrap md:flex-wrap items-center gap-1 max-w-full overflow-x-auto no-scrollbar rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-2 py-1 md:px-2.5 md:py-1.5 backdrop-blur-md shadow-xl">
             <button
               type="button"
               onClick={onOpenIntro}
-              className="flex items-center gap-2 pr-2.5 border-r border-white/[0.08] hover:text-[#38BDF8] transition cursor-pointer"
+              className="flex shrink-0 items-center gap-2 pr-2.5 border-r border-white/[0.08] hover:text-[#38BDF8] transition cursor-pointer min-h-[36px] md:min-h-0"
               title="Replay Story Intro"
             >
-              <span className="h-2 w-2 rounded-full bg-[#38BDF8]" />
+              <span className="h-2 w-2 rounded-full bg-[#38BDF8] shrink-0" />
               <span
                 style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}
                 className="text-xs sm:text-sm font-semibold text-white whitespace-nowrap"
@@ -204,138 +204,138 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
               </span>
             </button>
 
-          <button
-            type="button"
-            onClick={() => onSelectMacroMode('solar-system')}
-            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
-              macroMode === 'solar-system' && tier !== 'inspector'
-                ? 'bg-[#38BDF8] text-[#090B0E] font-semibold'
-                : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
-            }`}
-          >
-            <Orbit className="h-3.5 w-3.5" />
-            <span>Solar System</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onSelectMacroMode('museum-platform')}
-            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
-              macroMode === 'museum-platform' && tier !== 'inspector'
-                ? 'bg-[#38BDF8] text-[#090B0E] font-semibold'
-                : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
-            }`}
-          >
-            <Compass className="h-3.5 w-3.5" />
-            <span>Orbital Museum</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (!activeArtifact) onSelectArtifact(artifacts[0]);
-              onSelectTier('inspector');
-            }}
-            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
-              tier === 'inspector'
-                ? 'bg-[#38BDF8] text-[#090B0E] font-semibold'
-                : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
-            }`}
-          >
-            <Box className="h-3.5 w-3.5" />
-            <span>1:1 Surface Stage</span>
-          </button>
-        </div>
-
-        {/* Center: Zone Filter Pills */}
-        <div className="pointer-events-auto hidden xl:flex items-center gap-1 rounded-xl border border-white/[0.08] bg-[#11141A]/90 p-1 backdrop-blur-md">
-          {(
-            [
-              { label: 'All (13)', value: 'All' },
-              { label: 'Moon (4)', value: 'Moon' },
-              { label: 'Mars (6)', value: 'Mars' },
-              { label: 'Asteroids (2)', value: 'Asteroids & Dwarf Planets' },
-              { label: 'Deep Space (1)', value: 'Deep Space' },
-            ] as const
-          ).map((z) => (
             <button
-              key={z.value}
               type="button"
-              onClick={() => onSelectZoneFilter(z.value)}
-              className={`rounded-lg px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
-                zoneFilter === z.value
-                  ? 'bg-white/[0.12] text-white font-semibold'
-                  : 'text-slate-400 hover:text-white'
+              onClick={() => onSelectMacroMode('solar-system')}
+              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 md:py-1 text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                macroMode === 'solar-system' && tier !== 'inspector'
+                  ? 'bg-[#38BDF8] text-[#090B0E] font-semibold'
+                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
-              {z.label}
+              <Orbit className="h-3.5 w-3.5 shrink-0" />
+              <span>Solar System</span>
             </button>
-          ))}
-        </div>
 
-        {/* Right: Reset View (R), Scoped 1:1 AR Button, Passport & Sources */}
-        <div className="pointer-events-auto flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={onResetCameraView}
-            title="Reset Camera View (Shortcut: R)"
-            className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-2.5 py-1.5 text-xs font-medium text-slate-300 hover:bg-white/[0.06] hover:text-white backdrop-blur-md transition cursor-pointer"
-          >
-            <RotateCcw className="h-3.5 w-3.5 text-[#38BDF8]" />
-            <span className="hidden sm:inline">Reset View</span>
-            <kbd className="hidden md:inline-block rounded bg-white/[0.06] px-1 font-mono text-[10px] text-slate-400">
-              R
-            </kbd>
-          </button>
+            <button
+              type="button"
+              onClick={() => onSelectMacroMode('museum-platform')}
+              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 md:py-1 text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                macroMode === 'museum-platform' && tier !== 'inspector'
+                  ? 'bg-[#38BDF8] text-[#090B0E] font-semibold'
+                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
+              }`}
+            >
+              <Compass className="h-3.5 w-3.5 shrink-0" />
+              <span>Orbital Museum</span>
+            </button>
 
-          {tier === 'inspector' && (
             <button
               type="button"
               onClick={() => {
-                if (normalizedScale) {
-                  onToggleNormalizedScale();
-                }
-                onToggleArPassthrough();
+                if (!activeArtifact) onSelectArtifact(artifacts[0]);
+                onSelectTier('inspector');
               }}
-              className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold backdrop-blur-md transition cursor-pointer ${
-                arPassthrough
-                  ? 'border-[#38BDF8] bg-[#38BDF8] text-[#090B0E]'
-                  : 'border-white/[0.08] bg-[#11141A]/90 text-slate-200 hover:border-white/25'
+              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 md:py-1 text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                tier === 'inspector'
+                  ? 'bg-[#38BDF8] text-[#090B0E] font-semibold'
+                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
-              <Camera className="h-3.5 w-3.5" />
-              <span>{arPassthrough ? 'Exit AR Camera' : '1:1 AR Mode'}</span>
+              <Box className="h-3.5 w-3.5 shrink-0" />
+              <span>1:1 Surface Stage</span>
             </button>
-          )}
+          </div>
 
-          <button
-            type="button"
-            onClick={onOpenIntro}
-            className="hidden sm:flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-white/[0.06] hover:text-white backdrop-blur-md transition cursor-pointer"
-          >
-            <Film className="h-3.5 w-3.5 text-[#38BDF8]" />
-            <span>Intro</span>
-          </button>
+          {/* Center: Zone Filter Pills */}
+          <div className="pointer-events-auto hidden xl:flex items-center gap-1 rounded-xl border border-white/[0.08] bg-[#11141A]/90 p-1 backdrop-blur-md">
+            {(
+              [
+                { label: 'All (13)', value: 'All' },
+                { label: 'Moon (4)', value: 'Moon' },
+                { label: 'Mars (6)', value: 'Mars' },
+                { label: 'Asteroids (2)', value: 'Asteroids & Dwarf Planets' },
+                { label: 'Deep Space (1)', value: 'Deep Space' },
+              ] as const
+            ).map((z) => (
+              <button
+                key={z.value}
+                type="button"
+                onClick={() => onSelectZoneFilter(z.value)}
+                className={`rounded-lg px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
+                  zoneFilter === z.value
+                    ? 'bg-white/[0.12] text-white font-semibold'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                {z.label}
+              </button>
+            ))}
+          </div>
 
-          <button
-            type="button"
-            onClick={onOpenPassport}
-            className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/[0.06] backdrop-blur-md transition cursor-pointer"
-          >
-            <Award className="h-3.5 w-3.5 text-[#F97316]" />
-            <span>Passport ({discoveredCount}/13)</span>
-          </button>
+          {/* Right: Reset View (R), Scoped 1:1 AR Button, Passport & Sources (Compact Scrollable Row on Mobile) */}
+          <div className="pointer-events-auto flex flex-nowrap md:flex-wrap items-center gap-1.5 max-w-full overflow-x-auto no-scrollbar">
+            <button
+              type="button"
+              onClick={onResetCameraView}
+              title="Reset Camera View (Shortcut: R)"
+              className="flex shrink-0 items-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-2.5 py-1.5 text-xs font-medium whitespace-nowrap text-slate-300 hover:bg-white/[0.06] hover:text-white backdrop-blur-md transition cursor-pointer"
+            >
+              <RotateCcw className="h-3.5 w-3.5 text-[#38BDF8] shrink-0" />
+              <span className="hidden sm:inline">Reset View</span>
+              <kbd className="hidden md:inline-block rounded bg-white/[0.06] px-1 font-mono text-[10px] text-slate-400">
+                R
+              </kbd>
+            </button>
 
-          <button
-            type="button"
-            onClick={onOpenCitations}
-            className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-white/[0.06] hover:text-white backdrop-blur-md transition cursor-pointer"
-          >
-            <BookOpen className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Sources</span>
-          </button>
+            {tier === 'inspector' && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (normalizedScale) {
+                    onToggleNormalizedScale();
+                  }
+                  onToggleArPassthrough();
+                }}
+                className={`flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold whitespace-nowrap backdrop-blur-md transition cursor-pointer ${
+                  arPassthrough
+                    ? 'border-[#38BDF8] bg-[#38BDF8] text-[#090B0E]'
+                    : 'border-white/[0.08] bg-[#11141A]/90 text-slate-200 hover:border-white/25'
+                }`}
+              >
+                <Camera className="h-3.5 w-3.5 shrink-0" />
+                <span>{arPassthrough ? 'Exit AR Camera' : '1:1 AR Mode'}</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onOpenIntro}
+              className="flex shrink-0 items-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-2.5 sm:px-3 py-1.5 text-xs font-medium whitespace-nowrap text-slate-300 hover:bg-white/[0.06] hover:text-white backdrop-blur-md transition cursor-pointer"
+            >
+              <Film className="h-3.5 w-3.5 text-[#38BDF8] shrink-0" />
+              <span>Intro</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenPassport}
+              className="flex shrink-0 items-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-2.5 sm:px-3 py-1.5 text-xs font-medium whitespace-nowrap text-slate-200 hover:bg-white/[0.06] backdrop-blur-md transition cursor-pointer"
+            >
+              <Award className="h-3.5 w-3.5 text-[#F97316] shrink-0" />
+              <span>Passport ({discoveredCount}/13)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenCitations}
+              className="flex shrink-0 items-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-2.5 sm:px-3 py-1.5 text-xs font-medium whitespace-nowrap text-slate-300 hover:bg-white/[0.06] hover:text-white backdrop-blur-md transition cursor-pointer"
+            >
+              <BookOpen className="h-3.5 w-3.5 shrink-0" />
+              <span>Sources</span>
+            </button>
+          </div>
         </div>
-      </div>
 
       {/* ==================== DOCKED 28PX TRAJECTORY TELEMETRY STRIP (Solar System Mode) ==================== */}
       {macroMode === 'solar-system' && tier !== 'inspector' && activeArtifact && (
@@ -358,13 +358,13 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       {tier === 'inspector' && activeArtifact && (
         <div
           style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}
-          className="pointer-events-auto flex flex-wrap items-center gap-1.5"
+          className="pointer-events-auto flex flex-nowrap md:flex-wrap items-center gap-1.5 max-w-full overflow-x-auto no-scrollbar"
         >
           <button
             type="button"
             disabled={arPassthrough}
             onClick={onToggleNormalizedScale}
-            className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium backdrop-blur-md transition ${
+            className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium whitespace-nowrap backdrop-blur-md transition ${
               arPassthrough
                 ? 'border-white/[0.08] bg-[#11141A]/60 text-slate-500 cursor-not-allowed'
                 : normalizedScale
@@ -373,9 +373,9 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             }`}
           >
             {normalizedScale && !arPassthrough ? (
-              <Minimize2 className="h-3.5 w-3.5" />
+              <Minimize2 className="h-3.5 w-3.5 shrink-0" />
             ) : (
-              <Maximize2 className="h-3.5 w-3.5 text-[#38BDF8]" />
+              <Maximize2 className="h-3.5 w-3.5 text-[#38BDF8] shrink-0" />
             )}
             <span>{normalizedScale ? 'Normalized Scale' : '1:1 True Metric Scale'}</span>
           </button>
@@ -383,13 +383,13 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
           <button
             type="button"
             onClick={onToggleHotspots}
-            className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium backdrop-blur-md transition cursor-pointer ${
+            className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium whitespace-nowrap backdrop-blur-md transition cursor-pointer ${
               showHotspots
                 ? 'border-[#38BDF8]/50 bg-[#11141A]/90 text-[#38BDF8]'
                 : 'border-white/[0.08] bg-[#11141A]/90 text-slate-400 hover:text-white'
             }`}
           >
-            <Tag className="h-3.5 w-3.5" />
+            <Tag className="h-3.5 w-3.5 shrink-0" />
             <span>3D Pins: {showHotspots ? 'ON' : 'OFF'}</span>
           </button>
 
@@ -398,13 +398,13 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             <button
               type="button"
               onClick={onToggleAstronautScale}
-              className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium backdrop-blur-md transition cursor-pointer ${
+              className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium whitespace-nowrap backdrop-blur-md transition cursor-pointer ${
                 showAstronautScale
                   ? 'border-[#38BDF8]/50 bg-[#11141A]/90 text-[#38BDF8]'
                   : 'border-white/[0.08] bg-[#11141A]/90 text-slate-400 hover:text-white'
               }`}
             >
-              <UserCheck className="h-3.5 w-3.5" />
+              <UserCheck className="h-3.5 w-3.5 shrink-0" />
               <span>1.75m Astronaut: {showAstronautScale ? 'ON' : 'OFF'}</span>
             </button>
           )}
@@ -414,7 +414,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
 
       {/* ==================== FIX #6: SLEEK RIGHT-SIDE GLASS OVERLAY DRAWER (4 Clean Tabs) ==================== */}
       {activeArtifact && nasaHardware && isDrawerOpen && (
-        <aside className="pointer-events-auto fixed top-0 right-0 bottom-0 z-40 flex w-full max-w-[440px] flex-col border-l border-white/10 bg-[#0B0E14]/88 backdrop-blur-xl shadow-2xl">
+        <aside className="pointer-events-auto fixed top-0 right-0 bottom-0 z-40 flex h-[100dvh] w-full max-w-[440px] flex-col border-l border-white/10 bg-[#0B0E14]/92 backdrop-blur-xl shadow-2xl pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
           {/* Drawer Header: Status Badge, Artifact Title & × Close */}
           <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 pt-5 pb-4">
             <div className="min-w-0">
@@ -626,32 +626,34 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       )}
 
       {/* ==================== BOTTOM COMPACT ACTION BAR + ARTIFACT SELECTOR DOCK ==================== */}
-      <div className="mt-auto flex flex-col items-center gap-2">
+      <div className="mt-auto mb-4 md:mb-0 pb-[calc(1rem+env(safe-area-inset-bottom))] md:pb-0 flex flex-col items-center gap-2 w-full">
         {/* Compact Floating Bar for Active Artifact */}
         {activeArtifact && (
-          <div className="pointer-events-auto flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-3.5 py-2 backdrop-blur-md shadow-xl max-w-3xl w-full">
+          <div className="pointer-events-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-3 py-2 sm:px-3.5 backdrop-blur-md shadow-xl max-w-3xl w-full">
             {/* Left: Prev/Next + Artifact Name & Celestial Zone Badge */}
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
                   onClick={() => onStepArtifact('prev')}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-slate-300 hover:bg-white/[0.08] hover:text-white cursor-pointer"
+                  className="flex min-h-[42px] min-w-[42px] md:min-h-[30px] md:min-w-[30px] md:h-7 md:w-7 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] text-slate-300 hover:bg-white/[0.08] hover:text-white cursor-pointer"
                   title="Previous Artifact"
+                  aria-label="Previous Artifact"
                 >
-                  <ChevronLeft className="h-3.5 w-3.5" />
+                  <ChevronLeft className="h-4 w-4 md:h-3.5 md:w-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={() => onStepArtifact('next')}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-slate-300 hover:bg-white/[0.08] hover:text-white cursor-pointer"
+                  className="flex min-h-[42px] min-w-[42px] md:min-h-[30px] md:min-w-[30px] md:h-7 md:w-7 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] text-slate-300 hover:bg-white/[0.08] hover:text-white cursor-pointer"
                   title="Next Artifact"
+                  aria-label="Next Artifact"
                 >
-                  <ChevronRight className="h-3.5 w-3.5" />
+                  <ChevronRight className="h-4 w-4 md:h-3.5 md:w-3.5" />
                 </button>
               </div>
 
-              <div style={{ wordSpacing: 'normal', letterSpacing: 'normal' }} className="min-w-0">
+              <div style={{ wordSpacing: 'normal', letterSpacing: 'normal' }} className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span
                     style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}
@@ -673,15 +675,15 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
               </div>
             </div>
 
-            {/* Right: 1:1 Surface Switch + More Info Drawer Toggle */}
-            <div className="flex items-center gap-1.5 shrink-0">
+            {/* Right: 1:1 Surface Switch + More Info Drawer Toggle (Generous >=42px Mobile Tap Targets) */}
+            <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
               {tier !== 'inspector' ? (
                 <button
                   type="button"
                   onClick={() => onSelectTier('inspector')}
-                  className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/[0.1] hover:text-white transition cursor-pointer"
+                  className="flex flex-1 sm:flex-initial min-h-[42px] md:min-h-[32px] items-center justify-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/[0.1] hover:text-white transition cursor-pointer whitespace-nowrap"
                 >
-                  <Box className="h-3.5 w-3.5 text-[#38BDF8]" />
+                  <Box className="h-3.5 w-3.5 text-[#38BDF8] shrink-0" />
                   <span>1:1 Surface</span>
                 </button>
               ) : (
@@ -690,9 +692,9 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                   onClick={() =>
                     onSelectTier(macroMode === 'solar-system' ? 'trajectory' : 'orrery')
                   }
-                  className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/[0.1] hover:text-white transition cursor-pointer"
+                  className="flex flex-1 sm:flex-initial min-h-[42px] md:min-h-[32px] items-center justify-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/[0.1] hover:text-white transition cursor-pointer whitespace-nowrap"
                 >
-                  <Orbit className="h-3.5 w-3.5 text-[#38BDF8]" />
+                  <Orbit className="h-3.5 w-3.5 text-[#38BDF8] shrink-0" />
                   <span>{macroMode === 'solar-system' ? 'Solar Map' : 'Museum Deck'}</span>
                 </button>
               )}
@@ -701,13 +703,13 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
               <button
                 type="button"
                 onClick={() => setIsDrawerOpen((prev) => !prev)}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer ${
+                className={`flex flex-1 sm:flex-initial min-h-[42px] md:min-h-[32px] items-center justify-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition cursor-pointer whitespace-nowrap ${
                   isDrawerOpen
                     ? 'bg-white text-[#090B0E]'
                     : 'bg-[#38BDF8] text-[#090B0E] hover:brightness-110'
                 }`}
               >
-                <Info className="h-3.5 w-3.5" />
+                <Info className="h-3.5 w-3.5 shrink-0" />
                 <span>{isDrawerOpen ? 'Close Info' : 'More Info'}</span>
               </button>
             </div>
@@ -715,8 +717,8 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
         )}
 
         {/* Bottom Artifact Selector Strip */}
-        <div className="pointer-events-auto mx-auto w-full max-w-5xl rounded-2xl border border-white/[0.08] bg-[#11141A]/90 p-2 backdrop-blur-md shadow-2xl">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-thin">
+        <div className="pointer-events-auto mx-auto w-full max-w-5xl rounded-2xl border border-white/[0.08] bg-[#11141A]/90 p-1.5 sm:p-2 backdrop-blur-md shadow-2xl">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
             {filteredArtifacts.map((art) => {
               const isSelected = activeArtifact?.id === art.id;
               return (
@@ -724,7 +726,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                   key={art.id}
                   type="button"
                   onClick={() => onSelectArtifact(art)}
-                  className={`group flex shrink-0 items-center gap-2 rounded-xl border px-3 py-1.5 text-left transition-all cursor-pointer ${
+                  className={`group flex min-h-[42px] md:min-h-[34px] shrink-0 items-center gap-2 rounded-xl border px-3 py-1.5 text-left transition-all cursor-pointer ${
                     isSelected
                       ? 'border-[#38BDF8] bg-[#38BDF8]/15 text-white'
                       : 'border-white/[0.06] bg-white/[0.02] text-slate-300 hover:border-white/20 hover:bg-white/[0.06] hover:text-white'

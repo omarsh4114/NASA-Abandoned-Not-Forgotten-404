@@ -13,6 +13,7 @@ import { ProceduralSpacecraft } from '../ProceduralSpacecraft';
 import {
   createBackSideAtmosphereMaterial,
   createDisplacedErosGeometry,
+  createSaturnRingGeometry,
   getCachedPlanetaryPBRTextures,
 } from '../../utils/planetaryTextures';
 
@@ -107,84 +108,6 @@ function createOrbitPoints(
     pts.push([x, y, z]);
   }
   return pts;
-}
-
-function createFresnelAtmosphereMaterial(
-  hexColor: string,
-  power = 3.2,
-  intensity = 1.15
-) {
-  return new THREE.ShaderMaterial({
-    uniforms: {
-      uColor: { value: new THREE.Color(hexColor) },
-      uPower: { value: power },
-      uIntensity: { value: intensity },
-    },
-    vertexShader: `
-      varying vec3 vNormal;
-      varying vec3 vViewDir;
-      void main() {
-        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-        vNormal = normalize(normalMatrix * normal);
-        vViewDir = normalize(-mvPosition.xyz);
-        gl_Position = projectionMatrix * mvPosition;
-      }
-    `,
-    fragmentShader: `
-      uniform vec3 uColor;
-      uniform float uPower;
-      uniform float uIntensity;
-      varying vec3 vNormal;
-      varying vec3 vViewDir;
-      void main() {
-        float fresnel = pow(1.0 - max(0.0, dot(vNormal, vViewDir)), uPower);
-        gl_FragColor = vec4(uColor * uIntensity, fresnel * 0.85);
-      }
-    `,
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    side: THREE.FrontSide,
-  });
-}
-
-function createBoilingSunMaterial() {
-  return new THREE.ShaderMaterial({
-    uniforms: {
-      uTime: { value: 0 },
-    },
-    vertexShader: `
-      varying vec3 vPos;
-      varying vec3 vNormal;
-      varying vec3 vViewDir;
-      void main() {
-        vPos = position;
-        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-        vNormal = normalize(normalMatrix * normal);
-        vViewDir = normalize(-mvPosition.xyz);
-        gl_Position = projectionMatrix * mvPosition;
-      }
-    `,
-    fragmentShader: `
-      uniform float uTime;
-      varying vec3 vPos;
-      varying vec3 vNormal;
-      varying vec3 vViewDir;
-
-      float solarNoise(vec3 p) {
-        return sin(p.x * 3.1 + uTime * 1.4) * cos(p.y * 3.3 - uTime * 1.1) * sin(p.z * 2.9 + uTime * 1.3)
-             + 0.5 * sin(p.x * 7.2 - uTime * 2.3) * cos(p.z * 6.8 + uTime * 1.9);
-      }
-
-      void main() {
-        float n = solarNoise(vPos * 0.85) * 0.5 + 0.5;
-        vec3 coreColor = mix(vec3(0.95, 0.32, 0.04), vec3(1.0, 0.88, 0.35), clamp(n, 0.0, 1.0));
-        float limb = pow(1.0 - max(0.0, dot(vNormal, vViewDir)), 1.8);
-        vec3 finalColor = mix(coreColor, vec3(1.0, 0.96, 0.78), limb * 0.65);
-        gl_FragColor = vec4(finalColor, 1.0);
-      }
-    `,
-  });
 }
 
 /**
@@ -498,6 +421,7 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
   onSelectBody,
   onSelectArtifact,
 }) => {
+  const sunRef = useRef<THREE.Mesh>(null);
   const sunCoronaRef = useRef<THREE.Mesh>(null);
   const sunOuterRef = useRef<THREE.Mesh>(null);
   const earthRef = useRef<THREE.Mesh>(null);
@@ -522,33 +446,41 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
 
   const pbr = useMemo(() => getCachedPlanetaryPBRTextures(), []);
   const erosGeometry = useMemo(() => createDisplacedErosGeometry(PLANET_RADII.Eros), []);
-  const sunShaderMat = useMemo(() => createBoilingSunMaterial(), []);
+  const saturnRingGeometry = useMemo(() => createSaturnRingGeometry(2.95, 5.65, 128), []);
+  const sunInnerCoronaMat = useMemo(
+    () => createBackSideAtmosphereMaterial('#FFAD33', 2.4, 1.35),
+    []
+  );
+  const sunOuterCoronaMat = useMemo(
+    () => createBackSideAtmosphereMaterial('#EA580C', 3.4, 0.72),
+    []
+  );
   const earthAtmoMat = useMemo(
     () => createBackSideAtmosphereMaterial('#4AA8FF', 2.2, 1.05),
     []
   );
   const marsAtmoMat = useMemo(
-    () => createBackSideAtmosphereMaterial('#E87D42', 2.35, 0.9),
+    () => createBackSideAtmosphereMaterial('#E57B3E', 2.55, 0.85),
     []
   );
   const venusAtmoMat = useMemo(
-    () => createFresnelAtmosphereMaterial('#fde047', 2.8, 1.0),
+    () => createBackSideAtmosphereMaterial('#F2C97D', 2.4, 0.92),
     []
   );
   const jupiterAtmoMat = useMemo(
-    () => createFresnelAtmosphereMaterial('#fdba74', 3.5, 0.85),
+    () => createBackSideAtmosphereMaterial('#F4B878', 2.6, 0.72),
     []
   );
   const saturnAtmoMat = useMemo(
-    () => createFresnelAtmosphereMaterial('#fef08a', 3.5, 0.8),
+    () => createBackSideAtmosphereMaterial('#F5DF98', 2.6, 0.65),
     []
   );
   const uranusAtmoMat = useMemo(
-    () => createFresnelAtmosphereMaterial('#67e8f9', 3.0, 1.0),
+    () => createBackSideAtmosphereMaterial('#7DD3FC', 2.5, 0.75),
     []
   );
   const neptuneAtmoMat = useMemo(
-    () => createFresnelAtmosphereMaterial('#3b82f6', 3.0, 1.1),
+    () => createBackSideAtmosphereMaterial('#3B82F6', 2.5, 0.85),
     []
   );
 
@@ -630,18 +562,16 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
-    sunShaderMat.uniforms.uTime.value = t;
+    if (sunRef.current) sunRef.current.rotation.y += delta * 0.045;
 
     if (sunCoronaRef.current) {
-      sunCoronaRef.current.rotation.y += delta * 0.12;
-      sunCoronaRef.current.scale.setScalar(1 + Math.sin(t * 2.2) * 0.025);
+      sunCoronaRef.current.scale.setScalar(1 + Math.sin(t * 1.8) * 0.018);
     }
     if (sunOuterRef.current) {
-      sunOuterRef.current.rotation.z -= delta * 0.08;
-      sunOuterRef.current.scale.setScalar(1.12 + Math.cos(t * 1.6) * 0.035);
+      sunOuterRef.current.scale.setScalar(1 + Math.cos(t * 1.3) * 0.024);
     }
-    if (earthRef.current) earthRef.current.rotation.y += delta * 0.28;
-    if (earthCloudsRef.current) earthCloudsRef.current.rotation.y += delta * 0.42;
+    if (earthRef.current) earthRef.current.rotation.y += delta * 0.16;
+    if (earthCloudsRef.current) earthCloudsRef.current.rotation.y += delta * 0.24;
     if (moonRef.current) moonRef.current.rotation.y += delta * 0.045;
     if (marsRef.current) marsRef.current.rotation.y += delta * 0.24;
     if (erosRef.current) {
@@ -791,41 +721,37 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
         speed={0.3}
       />
 
-      {/* Heliocentric Point Light from the Sun + Ambient Deep Space Fill */}
+      {/* Heliocentric Point Light from the Sun + Balanced Deep Space Fill */}
       <pointLight
         position={[0, 0, 0]}
-        intensity={6.2}
-        distance={280}
-        decay={0.4}
+        intensity={7.6}
+        distance={320}
+        decay={0.35}
         color="#fff7ed"
       />
-      <ambientLight intensity={0.48} color="#94a3b8" />
-      <hemisphereLight args={['#38bdf8', '#090d16', 0.48]} />
+      <directionalLight position={[-12, 22, 24]} intensity={0.62} color="#e2e8f0" />
+      <ambientLight intensity={0.54} color="#cbd5e1" />
+      <hemisphereLight args={['#38bdf8', '#090d16', 0.52]} />
 
       {/* ==================== THE SUN [0, 0, 0] ==================== */}
       <group position={CELESTIAL_ANCHORS.Sun}>
-        <mesh material={sunShaderMat}>
+        <mesh ref={sunRef}>
           <sphereGeometry args={[4.2, 64, 64]} />
-        </mesh>
-        <mesh ref={sunCoronaRef}>
-          <sphereGeometry args={[4.6, 48, 48]} />
-          <meshBasicMaterial
-            color="#f97316"
-            transparent
-            opacity={0.48}
-            blending={THREE.AdditiveBlending}
-            depthWrite={false}
+          <meshStandardMaterial
+            map={pbr.sunMap}
+            emissiveMap={pbr.sunMap}
+            emissive="#FF9E2C"
+            emissiveIntensity={1.6}
+            roughness={0.65}
+            metalness={0}
+            toneMapped={false}
           />
         </mesh>
-        <mesh ref={sunOuterRef}>
-          <sphereGeometry args={[5.55, 48, 48]} />
-          <meshBasicMaterial
-            color="#fb923c"
-            transparent
-            opacity={0.2}
-            blending={THREE.AdditiveBlending}
-            depthWrite={false}
-          />
+        <mesh ref={sunCoronaRef} material={sunInnerCoronaMat}>
+          <sphereGeometry args={[4.2 * 1.18, 48, 48]} />
+        </mesh>
+        <mesh ref={sunOuterRef} material={sunOuterCoronaMat}>
+          <sphereGeometry args={[4.2 * 1.44, 48, 48]} />
         </mesh>
       </group>
 
@@ -862,13 +788,14 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
       {/* ==================== 1. MERCURY & 2. VENUS ==================== */}
       <group ref={mercuryGroupRef}>
         <mesh position={[8.2, 0.1, 0]}>
-          <sphereGeometry args={[0.44, 36, 36]} />
+          <sphereGeometry args={[0.44, 48, 48]} />
           <meshStandardMaterial
-            map={pbr.moonMap}
-            bumpMap={pbr.moonBump}
-            bumpScale={0.05}
-            roughness={0.92}
-            metalness={0.08}
+            map={pbr.mercuryMap}
+            bumpMap={pbr.mercuryBump}
+            bumpScale={0.07}
+            roughnessMap={pbr.mercuryRoughness}
+            roughness={0.93}
+            metalness={0.05}
           />
         </mesh>
       </group>
@@ -876,17 +803,17 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
       <group ref={venusGroupRef}>
         <group position={[12.8, -0.1, 0]}>
           <mesh>
-            <sphereGeometry args={[0.88, 36, 36]} />
+            <sphereGeometry args={[0.88, 64, 64]} />
             <meshStandardMaterial
-              map={pbr.jupiterMap}
-              color="#fde68a"
-              bumpMap={pbr.earthClouds}
+              map={pbr.venusMap}
+              bumpMap={pbr.venusBump}
               bumpScale={0.02}
-              roughness={0.65}
+              roughness={0.68}
+              metalness={0.02}
             />
           </mesh>
           <mesh material={venusAtmoMat}>
-            <sphereGeometry args={[0.98, 32, 32]} />
+            <sphereGeometry args={[0.88 * 1.11, 48, 48]} />
           </mesh>
         </group>
       </group>
@@ -900,22 +827,22 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
             roughnessMap={pbr.earthRoughness}
             roughness={1.0}
             bumpMap={pbr.earthBump}
-            bumpScale={0.055}
+            bumpScale={0.07}
             metalness={0.08}
           />
         </mesh>
         <mesh ref={earthCloudsRef}>
-          <sphereGeometry args={[1.408, 48, 48]} />
+          <sphereGeometry args={[1.38 * 1.015, 48, 48]} />
           <meshStandardMaterial
             map={pbr.earthClouds}
             transparent
             opacity={0.78}
-            roughness={0.9}
+            roughness={0.88}
             depthWrite={false}
           />
         </mesh>
         <mesh material={earthAtmoMat}>
-          <sphereGeometry args={[1.56, 48, 48]} />
+          <sphereGeometry args={[1.38 * 1.12, 48, 48]} />
         </mesh>
 
         <Line points={moonLocalOrbit} color="#38bdf8" lineWidth={1} transparent opacity={0.22} />
@@ -958,24 +885,12 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
           <meshStandardMaterial
             map={pbr.moonMap}
             bumpMap={pbr.moonBump}
-            bumpScale={0.06}
+            bumpScale={0.065}
             roughnessMap={pbr.moonRoughness}
             roughness={0.94}
-            metalness={0.03}
+            metalness={0.02}
           />
         </mesh>
-        {selectedBody === 'Moon' && (
-          <mesh>
-            <sphereGeometry args={[0.72, 32, 32]} />
-            <meshBasicMaterial
-              color="#38bdf8"
-              transparent
-              opacity={0.14}
-              blending={THREE.AdditiveBlending}
-              depthWrite={false}
-            />
-          </mesh>
-        )}
       </group>
 
       {/* ==================== 4. PHOTOREALISTIC MARS (6 Artifacts) ==================== */}
@@ -993,15 +908,15 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
           <meshStandardMaterial
             map={pbr.marsMap}
             bumpMap={pbr.marsBump}
-            bumpScale={0.07}
+            bumpScale={0.075}
             roughnessMap={pbr.marsRoughness}
-            roughness={0.92}
+            roughness={0.9}
             metalness={0.03}
           />
         </mesh>
         {/* Dusty-Amber BackSide Atmospheric Limb Halo */}
         <mesh material={marsAtmoMat}>
-          <sphereGeometry args={[PLANET_RADII.Mars * 1.13, 48, 48]} />
+          <sphereGeometry args={[PLANET_RADII.Mars * 1.09, 48, 48]} />
         </mesh>
       </group>
 
@@ -1033,9 +948,10 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
           <meshStandardMaterial
             map={pbr.erosMap}
             bumpMap={pbr.erosBump}
-            bumpScale={0.06}
-            roughness={0.92}
-            metalness={0.06}
+            bumpScale={0.09}
+            roughnessMap={pbr.erosRoughness}
+            roughness={0.95}
+            metalness={0.05}
           />
         </mesh>
       </group>
@@ -1055,9 +971,10 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
           <meshStandardMaterial
             map={pbr.ceresMap}
             bumpMap={pbr.ceresBump}
-            bumpScale={0.065}
-            roughness={0.92}
-            metalness={0.05}
+            bumpScale={0.08}
+            roughnessMap={pbr.ceresRoughness}
+            roughness={0.95}
+            metalness={0.04}
           />
         </mesh>
       </group>
@@ -1068,14 +985,14 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
           <sphereGeometry args={[2.85, 64, 64]} />
           <meshStandardMaterial
             map={pbr.jupiterMap}
-            bumpMap={pbr.earthClouds}
-            bumpScale={0.02}
-            roughness={0.68}
-            metalness={0.05}
+            bumpMap={pbr.jupiterBump}
+            bumpScale={0.015}
+            roughness={0.72}
+            metalness={0.04}
           />
         </mesh>
         <mesh material={jupiterAtmoMat}>
-          <sphereGeometry args={[3.05, 48, 48]} />
+          <sphereGeometry args={[2.85 * 1.08, 48, 48]} />
         </mesh>
       </group>
 
@@ -1083,40 +1000,39 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
         <mesh ref={saturnRef}>
           <sphereGeometry args={[2.35, 64, 64]} />
           <meshStandardMaterial
-            map={pbr.jupiterMap}
-            color="#fde68a"
-            roughness={0.65}
-            metalness={0.05}
+            map={pbr.saturnMap}
+            roughness={0.68}
+            metalness={0.04}
           />
         </mesh>
         <mesh material={saturnAtmoMat}>
-          <sphereGeometry args={[2.52, 40, 40]} />
+          <sphereGeometry args={[2.35 * 1.08, 48, 48]} />
         </mesh>
-        <mesh rotation={[Math.PI / 2.35, 0.25, 0]}>
-          <planeGeometry args={[11.2, 11.2]} />
+        <mesh geometry={saturnRingGeometry} rotation={[Math.PI / 2.35, 0.25, 0]}>
           <meshStandardMaterial
             map={pbr.saturnRingMap}
             side={THREE.DoubleSide}
             transparent
             depthWrite={false}
-            roughness={0.75}
+            roughness={0.72}
+            metalness={0.04}
           />
         </mesh>
       </group>
 
       {/* ==================== 7. URANUS & 8. NEPTUNE ==================== */}
       <group ref={uranusGroupRef}>
-        <group position={[86, -0.5, 0]}>
+        <group position={[86, -0.5, 0]} rotation={[0, 0, Math.PI * 0.45]}>
           <mesh>
-            <sphereGeometry args={[1.55, 40, 40]} />
+            <sphereGeometry args={[1.55, 64, 64]} />
             <meshStandardMaterial
-              map={pbr.jupiterMap}
-              color="#67e8f9"
-              roughness={0.58}
+              map={pbr.uranusMap}
+              roughness={0.6}
+              metalness={0.04}
             />
           </mesh>
           <mesh material={uranusAtmoMat}>
-            <sphereGeometry args={[1.7, 32, 32]} />
+            <sphereGeometry args={[1.55 * 1.09, 48, 48]} />
           </mesh>
         </group>
       </group>
@@ -1124,15 +1040,15 @@ export const SolarSystemOrrery: React.FC<SolarSystemOrreryProps> = ({
       <group ref={neptuneGroupRef}>
         <group position={[98, 0.5, 0]}>
           <mesh>
-            <sphereGeometry args={[1.5, 40, 40]} />
+            <sphereGeometry args={[1.5, 64, 64]} />
             <meshStandardMaterial
-              map={pbr.jupiterMap}
-              color="#3b82f6"
-              roughness={0.55}
+              map={pbr.neptuneMap}
+              roughness={0.58}
+              metalness={0.04}
             />
           </mesh>
           <mesh material={neptuneAtmoMat}>
-            <sphereGeometry args={[1.65, 32, 32]} />
+            <sphereGeometry args={[1.5 * 1.09, 48, 48]} />
           </mesh>
         </group>
       </group>
