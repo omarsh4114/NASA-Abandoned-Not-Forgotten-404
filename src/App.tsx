@@ -52,7 +52,8 @@ function computeFramingForState(
   macroMode: MacroExperienceMode,
   tier: SpatialTier,
   activeArtifact: SpatialArtifact | null,
-  selectedBody: TargetCelestialBody | null
+  selectedBody: TargetCelestialBody | null,
+  viewportAspect = 1.6
 ): {
   visualRadius: number;
   targetPos: THREE.Vector3;
@@ -61,22 +62,31 @@ function computeFramingForState(
   maxDistance: number;
   maxPolarAngle: number;
 } {
+  // Widen framing distance cleanly on narrow portrait screens so spacecraft, astronaut & pins stay inside viewport
+  const inspectorPortraitBoost =
+    viewportAspect < 0.95 ? Math.min(2.3, 1.06 / Math.max(0.42, viewportAspect)) : 1.0;
+  const macroPortraitBoost =
+    viewportAspect < 0.95 ? Math.min(1.65, 0.95 / Math.max(0.45, viewportAspect)) : 1.0;
+
   // 1. Tier 3: 1:1 Surface / Spacecraft Stage
   if (tier === 'inspector') {
     const visualRadius = 1.98;
-    const focusDistance = visualRadius * 2.6; // ~5.15m so spacecraft and 1.75m astronaut both fit cleanly
+    const focusDistance = visualRadius * 2.6 * inspectorPortraitBoost; // ~5.15m desktop, scales wider on portrait mobile
     const isFloatingOrbital =
       activeArtifact?.zone === 'Deep Space' ||
       activeArtifact?.statusCategory === 'Drifting' ||
       activeArtifact?.targetBody === 'Ceres' ||
       activeArtifact?.targetBody === 'Interstellar';
 
+    const targetX = isFloatingOrbital ? 0 : viewportAspect < 0.85 ? 1.08 : 0.35;
+    const camY = 1.82 * Math.sqrt(inspectorPortraitBoost);
+
     return {
       visualRadius,
-      targetPos: new THREE.Vector3(isFloatingOrbital ? 0 : 0.35, 0.88, 0),
-      cameraPos: new THREE.Vector3(isFloatingOrbital ? 0 : 0.35, 1.82, focusDistance),
+      targetPos: new THREE.Vector3(targetX, 0.88, 0),
+      cameraPos: new THREE.Vector3(targetX, camY, focusDistance),
       minDistance: visualRadius * 1.15, // ~2.28m
-      maxDistance: visualRadius * 8.0,  // ~15.8m
+      maxDistance: visualRadius * 8.0 * inspectorPortraitBoost,
       // FIX #5: Clamp maxPolarAngle in 1:1 surface mode so the camera never dips underneath the ground
       maxPolarAngle: isFloatingOrbital ? Math.PI * 0.85 : Math.PI * 0.48,
     };
@@ -87,7 +97,7 @@ function computeFramingForState(
     if (activeArtifact) {
       const [px, py, pz] = activeArtifact.pedestalPosition;
       const visualRadius = 1.75;
-      const focusDistance = visualRadius * 2.6; // ~4.55m
+      const focusDistance = visualRadius * 2.6 * macroPortraitBoost;
       const dist = Math.hypot(px, pz) || 1;
       const dirX = px / dist;
       const dirZ = pz / dist;
@@ -97,7 +107,7 @@ function computeFramingForState(
         targetPos: new THREE.Vector3(px, py + 1.15, pz),
         cameraPos: new THREE.Vector3(
           px - dirX * focusDistance,
-          py + 2.05,
+          py + 2.05 * Math.sqrt(macroPortraitBoost),
           pz - dirZ * focusDistance
         ),
         minDistance: visualRadius * 1.35,
@@ -109,7 +119,7 @@ function computeFramingForState(
     return {
       visualRadius: 6.0,
       targetPos: new THREE.Vector3(0, 1.2, -6),
-      cameraPos: new THREE.Vector3(0, 4.2, 13),
+      cameraPos: new THREE.Vector3(0, 4.2, 13 * macroPortraitBoost),
       minDistance: 3.0,
       maxDistance: 55,
       maxPolarAngle: Math.PI * 0.48,
@@ -125,7 +135,7 @@ function computeFramingForState(
 
     // Normalized visual radius of the planet + surface spacecraft node
     const visualRadius = Math.max(1.35, planetRadius * 1.85);
-    const focusDistance = visualRadius * 2.6;
+    const focusDistance = visualRadius * 2.6 * macroPortraitBoost;
 
     // Approach from a clean sun-lit viewing angle gently biased toward the selected artifact
     const yawBias = getArtifactSurfaceYawBias(activeArtifact?.id) * 0.22;
@@ -153,7 +163,7 @@ function computeFramingForState(
   return {
     visualRadius: 24,
     targetPos: new THREE.Vector3(0, 0, 0),
-    cameraPos: new THREE.Vector3(0, 38, 68),
+    cameraPos: new THREE.Vector3(0, 38 * macroPortraitBoost, 68 * macroPortraitBoost),
     minDistance: 6,
     maxDistance: 175,
     maxPolarAngle: Math.PI * 0.88,
@@ -169,7 +179,8 @@ const CameraStateMachine: React.FC<CameraStateMachineProps> = ({
   resetTrigger,
 }) => {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
-  const { camera } = useThree();
+  const { camera, size } = useThree();
+  const quantizedAspect = Math.round((size.width / Math.max(1, size.height)) * 20) / 20;
 
   const animRef = useRef<{
     active: boolean;
@@ -190,8 +201,15 @@ const CameraStateMachine: React.FC<CameraStateMachineProps> = ({
   });
 
   const framing = useMemo(
-    () => computeFramingForState(macroMode, tier, activeArtifact, selectedBody),
-    [macroMode, tier, activeArtifact, selectedBody]
+    () =>
+      computeFramingForState(
+        macroMode,
+        tier,
+        activeArtifact,
+        selectedBody,
+        quantizedAspect
+      ),
+    [macroMode, tier, activeArtifact, selectedBody, quantizedAspect]
   );
 
   // Trigger smooth 0.6s transition on selection / mode change / Reset View (R)
@@ -452,7 +470,7 @@ export function App() {
   const isArActive = arPassthrough && tier === 'inspector';
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#090B0E] text-white select-none font-sans">
+    <div className="relative h-[100dvh] w-screen overflow-hidden bg-[#090B0E] text-white select-none font-sans">
       {/* Live 1:1 WebRTC AR Camera Feed (Strictly Scoped to 1:1 Artifact Inspector) */}
       {isArActive && (
         <div className="fixed inset-0 z-0 overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-black">

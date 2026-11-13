@@ -231,7 +231,7 @@ export const OnScreenArrowPad: React.FC = () => {
 
   return (
     <div
-      className="pointer-events-auto fixed bottom-[140px] right-4 2xl:bottom-4 z-30 flex flex-col items-center gap-1 rounded-lg border border-white/10 bg-[#11141A]/75 p-1 backdrop-blur-md shadow-xl"
+      className="pointer-events-auto hidden md:flex fixed bottom-[144px] right-4 2xl:bottom-4 z-30 flex-col items-center gap-1 rounded-lg border border-white/10 bg-[#11141A]/75 p-1 backdrop-blur-md shadow-xl"
       title="Camera Navigation (Arrow Keys or WASD · Hold Shift + Up/Down for Tilt)"
     >
       <button
