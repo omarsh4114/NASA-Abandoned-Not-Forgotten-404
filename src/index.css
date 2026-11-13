@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+}
+
+@layer base {
+  :root {
+    --font-serif: 'Instrument Serif', Georgia, serif;
+    --font-display: 'Plus Jakarta Sans', 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  html,
+  body,
+  #root {
+    background-color: #090B0E;
+    color: #F8FAFC;
+    font-family: var(--font-sans);
+    word-spacing: normal;
+    letter-spacing: normal;
+    font-kerning: normal;
+    font-variant-ligatures: normal;
+    overflow-x: hidden;
+  }
+
+  button,
+  p,
+  span,
+  h1,
+  h2,
+  h3,
+  h4,
+  blockquote {
+    word-spacing: normal;
+  }
+
+  .font-serif-story {
+    font-family: var(--font-serif);
+    word-spacing: normal;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+    word-spacing: normal;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+    word-spacing: normal;
+  }
+}
+
+.spatial-html-label {
+  word-spacing: normal;
+  letter-spacing: normal;
+  font-kerning: normal;
+  white-space: nowrap;
+}
+
+/* Magic UI Meteor Keyframes */
+@keyframes meteor {
+  0% {
+    transform: rotate(215deg) translateX(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(215deg) translateX(-600px);
+    opacity: 0;
+  }
+}
+
+.animate-meteor {
+  animation: meteor 6s linear infinite;
+}
+
+/* Magic UI Border Beam Shimmer */
+@keyframes shimmer-sweep {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.magic-border-glow {
+  background: linear-gradient(120deg, rgba(229, 169, 60, 0.15), rgba(252, 61, 33, 0.35), rgba(245, 242, 235, 0.12));
+  background-size: 200% 200%;
+  animation: shimmer-sweep 8s ease infinite;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-certificate,
+  #printable-certificate * {
+    visibility: visible;
+  }
+  #printable-certificate {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #F5F2EB !important;
+    color: #141619 !important;
+  }
+}
