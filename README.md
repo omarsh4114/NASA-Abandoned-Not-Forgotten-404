@@ -1,28 +1,19 @@
-# 🚀 Abandoned but not Forgotten
-**NASA Space Apps Cairo 2026 Submission**
+# Echoes of Silence 🌌
+**NASA Space Apps Challenge Cairo 2026**
 
-## 📖 The Project
-Right now, there are thousands of pieces of historic NASA equipment left behind on the Moon, Mars, and in orbit. Our project is an interactive, 3D web-based museum that brings these forgotten artifacts back to life. 
-
-Instead of static text, we use an AI-powered Python backend to give the equipment a voice, generating emotional, first-person narratives based on real NASA mission data, while users explore the artifacts in 3D and AR directly in their browser.
+## 🚀 Project Overview
+**Echoes of Silence** is an immersive digital experience that brings abandoned space artifacts, rovers, and probes back to life through first-person AI-generated storytelling. Instead of letting humanity's greatest interplanetary pioneers sit in silent, dusty oblivion, our application gives voice to their historic journeys across the Moon, Mars, and deep space.
 
 ## 🛠️ Tech Stack
-*   **Frontend:** HTML, CSS, JavaScript
-*   **3D & AR:** Google `<model-viewer>` (rendering at 40 FPS), Draco Compression
-*   **Backend:** Python, FastAPI
-*   **AI Integration:** [Insert Gemini or OpenAI] API
-*   **Data Sources:** NASA 3D Resources, NASA Open Data Portal
+* **Backend:** Python, FastAPI, Uvicorn
+* **Frontend:** Web UI integration (connected via CORS)
+* **Data Storage:** Structured JSON (`artifacts.json`)
+* **Version Control:** Git & GitHub
 
-## 🪐 The Artifacts Featured
-1. [Artifact 1 Name] - [Location]
-2. [Artifact 2 Name] - [Location]
-3. [Artifact 3 Name] - [Location]
-4. [Artifact 4 Name] - [Location]
+## 📡 Local Backend Setup & API Usage
 
-## 👨‍💻 The Team
-*   **Omar:** Team Lead, Backend & AI Data
-*   **Joseph:** Frontend & UI Development
-*   **Bashar:** 3D Asset Pipeline & AR
+To run the FastAPI backend locally and fetch the artifact stories:
 
-## ⚙️ How to Run Locally
-*(We will update these instructions before final submission so judges can test our API).*
+1. **Install Dependencies:**
+   ```bash
+   pip install fastapi uvicorn
