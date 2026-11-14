@@ -100,9 +100,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
 }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<DrawerTab>('story');
-  const [photoView, setPhotoView] = useState<'mission' | 'orbital'>('mission');
-  const [failedUrls, setFailedUrls] = useState<Record<string, boolean>>({});
-  const [selectedQaIndex, setSelectedQaIndex] = useState<number>(0);
+  const [photoStage, setPhotoStage] = useState<0 | 1 | 2>(0);
   const [prevArtifactId, setPrevArtifactId] = useState<string | undefined>(activeArtifact?.id);
   const [prevHotspotId, setPrevHotspotId] = useState<string | undefined>(activeHotspot?.id);
 
@@ -111,8 +109,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
   if (activeArtifact?.id !== prevArtifactId) {
     setPrevArtifactId(activeArtifact?.id);
     setActiveTab('story');
-    setPhotoView('mission');
-    setSelectedQaIndex(0);
+    setPhotoStage(0);
   }
 
   if (activeHotspot?.id !== prevHotspotId) {
@@ -147,19 +144,8 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
   const activePhotoSrc =
     nasaHardware && photoStage === 0
       ? nasaHardware.missionImageUrl
-      : nasaHardware.orbitalImageUrl
-    : null;
-  const backupPhotoUrl = nasaHardware
-    ? photoView === 'mission'
+      : nasaHardware && photoStage === 1
       ? nasaHardware.orbitalImageUrl
-      : nasaHardware.missionImageUrl
-    : null;
-
-  const activePhotoSrc =
-    preferredPhotoUrl && !failedUrls[preferredPhotoUrl]
-      ? preferredPhotoUrl
-      : backupPhotoUrl && !failedUrls[backupPhotoUrl]
-      ? backupPhotoUrl
       : null;
 
   return (
@@ -407,10 +393,6 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                 <span className="rounded border border-white/10 bg-white/[0.03] px-2 py-0.5 font-mono text-[10px] text-slate-300">
                   {activeArtifact.statusCategory}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded border border-[#E5A93C]/35 bg-[#E5A93C]/10 px-2 py-0.5 font-mono text-[10px] text-[#E5A93C]">
-                  <Radio className="h-2.5 w-2.5 shrink-0" />
-                  <span>{nasaHardware.radioLightDelay}</span>
-                </span>
               </div>
               <h2 className="mt-2 text-base sm:text-lg font-semibold text-white leading-snug">
                 {activeArtifact.name}
@@ -461,97 +443,36 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
             {activeTab === 'story' && (
               <div style={{ wordSpacing: 'normal', letterSpacing: 'normal' }} className="space-y-4">
-                {/* Top Archival NASA Mission / Orbital Photograph with Then-vs-Now Switcher & SVG Telemetry Fallback */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                      NASA Archival Imagery
-                    </span>
-                    <div className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] p-0.5">
-                      <button
-                        type="button"
-                        onClick={() => setPhotoView('mission')}
-                        className={`rounded-md px-2 py-0.5 font-mono text-[10px] font-medium transition cursor-pointer ${
-                          photoView === 'mission'
-                            ? 'bg-[#38BDF8] text-[#090B0E] font-semibold'
-                            : 'text-slate-400 hover:text-white'
-                        }`}
-                      >
-                        Mission Photo
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPhotoView('orbital')}
-                        className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[10px] font-medium transition cursor-pointer ${
-                          photoView === 'orbital'
-                            ? 'bg-[#E5A93C] text-[#090B0E] font-semibold'
-                            : 'text-slate-400 hover:text-white'
-                        }`}
-                      >
-                        <Satellite className="h-2.5 w-2.5" />
-                        <span>Orbital Recon</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-white/10 bg-[#07090D]">
-                    {activePhotoSrc ? (
-                      <img
-                        key={activePhotoSrc}
-                        src={activePhotoSrc}
-                        alt={`${activeArtifact.name} NASA archive`}
-                        onError={() => {
-                          if (activePhotoSrc) {
-                            setFailedUrls((prev) => ({ ...prev, [activePhotoSrc]: true }));
-                          }
-                        }}
-                        className="h-full w-full object-cover object-center"
-                      />
-                    ) : (
-                      <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#0B0E14] to-[#07090D] p-4 text-center">
-                        <svg
-                          viewBox="0 0 320 180"
-                          className="pointer-events-none absolute inset-0 h-full w-full opacity-35"
-                          aria-hidden="true"
-                        >
-                          <defs>
-                            <pattern id="nasaGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-                              <path
-                                d="M 20 0 L 0 0 0 20"
-                                fill="none"
-                                stroke="#38BDF8"
-                                strokeWidth="0.4"
-                                strokeOpacity="0.35"
-                              />
-                            </pattern>
-                          </defs>
-                          <rect width="320" height="180" fill="url(#nasaGrid)" />
-                          <circle cx="160" cy="90" r="54" fill="none" stroke="#38BDF8" strokeWidth="1" strokeDasharray="4 4" />
-                          <circle cx="160" cy="90" r="32" fill="none" stroke="#E5A93C" strokeWidth="1" />
-                          <line x1="90" y1="90" x2="230" y2="90" stroke="#38BDF8" strokeWidth="0.75" strokeOpacity="0.6" />
-                          <line x1="160" y1="24" x2="160" y2="156" stroke="#38BDF8" strokeWidth="0.75" strokeOpacity="0.6" />
-                        </svg>
-                        <div className="relative z-10 space-y-1">
-                          <div className="inline-flex items-center gap-1.5 rounded-full border border-[#38BDF8]/40 bg-[#38BDF8]/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#38BDF8]">
-                            NASA TELEMETRY ARCHIVE PLATE
-                          </div>
-                          <div className="font-mono text-xs font-semibold text-white">
-                            {activeArtifact.name.split(' (')[0]}
-                          </div>
-                          <div className="font-mono text-[10px] text-slate-300">
-                            {activeArtifact.locationName} · {activeArtifact.coordinates}
-                          </div>
-                        </div>
+                {/* Top Archival NASA Mission / Orbital Photograph */}
+                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-white/10 bg-[#07090D]">
+                  {activePhotoSrc ? (
+                    <img
+                      key={`${activeArtifact.id}-${photoStage}`}
+                      src={activePhotoSrc}
+                      alt={`${activeArtifact.name} NASA archive`}
+                      onError={() => {
+                        setPhotoStage((prev) => (prev < 2 ? ((prev + 1) as 0 | 1 | 2) : 2));
+                      }}
+                      className="h-full w-full object-cover object-center"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#0F172A] via-[#0B0E14] to-[#090B0E] p-4 text-center">
+                      <ImageOff className="h-5 w-5 text-slate-500" />
+                      <div className="font-mono text-[11px] font-semibold text-slate-300">
+                        {activeArtifact.name.split(' (')[0]}
                       </div>
-                    )}
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#07090D]/95 via-[#07090D]/55 to-transparent px-3 pt-6 pb-2 flex items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-1.5 rounded border border-[#E5A93C]/35 bg-[#07090D]/80 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#E5A93C]">
-                        {photoView === 'orbital' ? 'ORBITAL RECONNAISSANCE' : 'NASA ARCHIVE PHOTO'}
-                      </span>
-                      <span className="truncate font-mono text-[10px] text-slate-300">
-                        {activeArtifact.targetBody} · {activeArtifact.launchYear}
-                      </span>
+                      <div className="font-mono text-[10px] text-slate-500">
+                        {activeArtifact.locationName}
+                      </div>
                     </div>
+                  )}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#07090D]/95 via-[#07090D]/55 to-transparent px-3 pt-6 pb-2 flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded border border-[#E5A93C]/35 bg-[#07090D]/80 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#E5A93C]">
+                      NASA ARCHIVE PHOTO
+                    </span>
+                    <span className="truncate font-mono text-[10px] text-slate-300">
+                      {photoStage === 1 ? 'Orbital Reconnaissance' : activeArtifact.targetBody} · {activeArtifact.launchYear}
+                    </span>
                   </div>
                 </div>
 
@@ -578,32 +499,13 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
 
                   <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3">
                     <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                      Active Years &amp; Scale
+                      Active Years
                     </div>
                     <div className="mt-1 font-mono text-xs font-semibold text-white">
                       {activeArtifact.launchYear} – {activeArtifact.endYear}
                     </div>
                     <div className="mt-0.5 font-mono text-[10px] text-slate-400 leading-snug">
                       {activeArtifact.dimensions.label.split(' (')[0]}
-                    </div>
-                  </div>
-
-                  {/* WINNING EDGE B: Real-Time Radio Light-Delay & Distance Readout */}
-                  <div className="col-span-2 rounded-xl border border-[#E5A93C]/25 bg-[#E5A93C]/[0.05] p-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#E5A93C]">
-                        <Radio className="h-3 w-3" />
-                        <span>One-Way Radio Signal Delay &amp; Distance</span>
-                      </span>
-                      <span className="font-mono text-[10px] text-slate-300">
-                        {activeArtifact.distanceFromEarth}
-                      </span>
-                    </div>
-                    <div className="mt-1 font-mono text-xs font-semibold text-white">
-                      {nasaHardware.radioLightDelay}
-                    </div>
-                    <div className="mt-0.5 font-mono text-[10px] text-slate-400">
-                      {nasaHardware.surfaceEnvironment}
                     </div>
                   </div>
 
@@ -626,24 +528,13 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                   </div>
                 </div>
 
-                {/* Highlighted NASA DATA SOURCE Citation Pill with Clickable Official URL */}
-                <div className="rounded-xl border border-[#38BDF8]/30 bg-[#38BDF8]/[0.07] p-3.5 space-y-2">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="inline-flex items-center gap-1.5 rounded-full border border-[#38BDF8]/35 bg-[#38BDF8]/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#38BDF8]">
-                      <Database className="h-3 w-3" />
-                      <span>NASA DATA SOURCE</span>
-                    </div>
-                    <a
-                      href={nasaHardware.nasaSourceUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 rounded-full border border-[#38BDF8]/40 bg-[#38BDF8]/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-white hover:bg-[#38BDF8] hover:text-[#090B0E] transition"
-                    >
-                      <span>Official NASA Archive</span>
-                      <ExternalLink className="h-2.5 w-2.5" />
-                    </a>
+                {/* Highlighted NASA DATA SOURCE Citation Pill */}
+                <div className="rounded-xl border border-[#38BDF8]/30 bg-[#38BDF8]/[0.07] p-3.5">
+                  <div className="inline-flex items-center gap-1.5 rounded-full border border-[#38BDF8]/35 bg-[#38BDF8]/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#38BDF8]">
+                    <Database className="h-3 w-3" />
+                    <span>NASA DATA SOURCE</span>
                   </div>
-                  <p className="text-xs leading-relaxed text-slate-200">
+                  <p className="mt-2 text-xs leading-relaxed text-slate-200">
                     {nasaHardware.nasaDataSource}
                   </p>
                 </div>
@@ -739,7 +630,6 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                 >
                   {activeArtifact.locationName} · {activeArtifact.dimensions.width}m ×{' '}
                   {activeArtifact.dimensions.height}m
-                  {nasaHardware ? ` · ${nasaHardware.radioLightDelay}` : ''}
                 </div>
               </div>
             </div>
