@@ -22,6 +22,10 @@ import { SpaceEnvironment } from './components/SpaceEnvironment';
 import { ObservationPlatform } from './components/ObservationPlatform';
 import { ArtifactPedestal } from './components/ArtifactPedestal';
 import { PlanetaryMicroSite } from './components/inspector/PlanetaryMicroSite';
+import {
+  playArtifactVoice,
+  stopArtifactVoice,
+} from './components/inspector/ArtifactCommsCharacter';
 import { SpatialHUD } from './components/ui/SpatialHUD';
 import {
   StoryIntroOverlay,
@@ -42,12 +46,6 @@ interface CameraStateMachineProps {
   resetTrigger: number;
 }
 
-/**
- * Computes the normalized visual radius and camera framing vectors for any mode/target.
- * FIX #2: Strictly uses the normalized visual radius (focusDistance = visualRadius * 2.6)
- * instead of astronomical orbital distance so dawn-spacecraft, near-shoemaker, and pioneer-kepler
- * always frame front-and-center at the exact same close, readable scale as Moon and Mars artifacts.
- */
 function computeFramingForState(
   macroMode: MacroExperienceMode,
   tier: SpatialTier,
@@ -62,16 +60,14 @@ function computeFramingForState(
   maxDistance: number;
   maxPolarAngle: number;
 } {
-  // Widen framing distance cleanly on narrow portrait screens so spacecraft, astronaut & pins stay inside viewport
   const inspectorPortraitBoost =
     viewportAspect < 0.95 ? Math.min(2.3, 1.06 / Math.max(0.42, viewportAspect)) : 1.0;
   const macroPortraitBoost =
     viewportAspect < 0.95 ? Math.min(1.65, 0.95 / Math.max(0.45, viewportAspect)) : 1.0;
 
-  // 1. Tier 3: 1:1 Surface / Spacecraft Stage
   if (tier === 'inspector') {
     const visualRadius = 1.98;
-    const focusDistance = visualRadius * 2.6 * inspectorPortraitBoost; // ~5.15m desktop, scales wider on portrait mobile
+    const focusDistance = visualRadius * 2.6 * inspectorPortraitBoost;
     const isFloatingOrbital =
       activeArtifact?.zone === 'Deep Space' ||
       activeArtifact?.statusCategory === 'Drifting' ||
@@ -85,14 +81,12 @@ function computeFramingForState(
       visualRadius,
       targetPos: new THREE.Vector3(targetX, 0.88, 0),
       cameraPos: new THREE.Vector3(targetX, camY, focusDistance),
-      minDistance: visualRadius * 1.15, // ~2.28m
+      minDistance: visualRadius * 1.15,
       maxDistance: visualRadius * 8.0 * inspectorPortraitBoost,
-      // FIX #5: Clamp maxPolarAngle in 1:1 surface mode so the camera never dips underneath the ground
       maxPolarAngle: isFloatingOrbital ? Math.PI * 0.85 : Math.PI * 0.48,
     };
   }
 
-  // 2. Mode 2: Orbital Museum Platform Mode
   if (macroMode === 'museum-platform') {
     if (activeArtifact) {
       const [px, py, pz] = activeArtifact.pedestalPosition;
@@ -126,18 +120,15 @@ function computeFramingForState(
     };
   }
 
-  // 3. Mode 1: Solar System Mode — Focused on Selected Planet / Spacecraft Node
   if (tier === 'trajectory') {
     const targetKey: TargetCelestialBody =
       activeArtifact?.targetBody ?? selectedBody ?? 'Moon';
     const destPos = CELESTIAL_ANCHORS[targetKey];
     const planetRadius = PLANET_RADII[targetKey] ?? 1.0;
 
-    // Normalized visual radius of the planet + surface spacecraft node
     const visualRadius = Math.max(1.35, planetRadius * 1.85);
     const focusDistance = visualRadius * 2.6 * macroPortraitBoost;
 
-    // Approach from a clean sun-lit viewing angle gently biased toward the selected artifact
     const yawBias = getArtifactSurfaceYawBias(activeArtifact?.id) * 0.22;
     const viewDir = getPlanetBaseViewDir(targetKey)
       .applyAxisAngle(new THREE.Vector3(0, 1, 0), yawBias)
@@ -159,7 +150,6 @@ function computeFramingForState(
     };
   }
 
-  // 4. Mode 1: Macro Heliocentric Solar System Overview (orrery)
   return {
     visualRadius: 24,
     targetPos: new THREE.Vector3(0, 0, 0),
@@ -212,7 +202,6 @@ const CameraStateMachine: React.FC<CameraStateMachineProps> = ({
     [macroMode, tier, activeArtifact, selectedBody, quantizedAspect]
   );
 
-  // Trigger smooth 0.6s transition on selection / mode change / Reset View (R)
   useEffect(() => {
     const controls = controlsRef.current;
     animRef.current.startPos.copy(camera.position);
@@ -226,7 +215,6 @@ const CameraStateMachine: React.FC<CameraStateMachineProps> = ({
     animRef.current.active = true;
   }, [framing, resetTrigger, camera]);
 
-  // Floor teleportation in Mode 2 (Museum Platform)
   useEffect(() => {
     if (!teleportTarget || macroMode !== 'museum-platform' || tier === 'inspector') {
       return;
@@ -251,7 +239,6 @@ const CameraStateMachine: React.FC<CameraStateMachineProps> = ({
     if (animRef.current.active) {
       animRef.current.elapsed += delta;
       const t = Math.min(1, animRef.current.elapsed / animRef.current.duration);
-      // Smooth cubic ease-out
       const ease = 1 - Math.pow(1 - t, 3);
 
       camera.position.lerpVectors(
@@ -288,7 +275,6 @@ const CameraStateMachine: React.FC<CameraStateMachineProps> = ({
         maxPolarAngle={framing.maxPolarAngle}
         minPolarAngle={0.08}
         onStart={() => {
-          // Immediately yield control to the user on pointer/wheel interaction
           animRef.current.active = false;
         }}
       />
@@ -303,47 +289,72 @@ const CameraStateMachine: React.FC<CameraStateMachineProps> = ({
 };
 
 export function App() {
-  const [isIntroOpen, setIsIntroOpen] = useState<boolean>(true);
+  const initialDeepLink = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    const params = new URLSearchParams(window.location.search);
+    const artId = params.get('a') ?? params.get('artifact');
+    if (!artId) return null;
+    const found = SPATIAL_ARTIFACTS.find((a) => a.id === artId);
+    if (!found) return null;
+    const autoAr = params.get('ar') === '1';
+    const openStage = autoAr || params.get('stage') === '1';
+    return {
+      artifact: found,
+      openStage,
+      autoAr,
+    };
+  }, []);
+
+  const [isIntroOpen, setIsIntroOpen] = useState<boolean>(!initialDeepLink);
   const [macroMode, setMacroMode] = useState<MacroExperienceMode>('solar-system');
-  const [tier, setTier] = useState<SpatialTier>('orrery');
+  const [tier, setTier] = useState<SpatialTier>(
+    initialDeepLink?.openStage ? 'inspector' : 'orrery'
+  );
 
   const [activeArtifact, setActiveArtifact] = useState<SpatialArtifact | null>(
-    SPATIAL_ARTIFACTS[0]
+    initialDeepLink?.artifact ?? SPATIAL_ARTIFACTS[0]
   );
-  const [selectedBody, setSelectedBody] = useState<TargetCelestialBody | null>('Moon');
+  const [selectedBody, setSelectedBody] = useState<TargetCelestialBody | null>(
+    initialDeepLink?.artifact.targetBody ?? 'Moon'
+  );
   const [zoneFilter, setZoneFilter] = useState<
     'All' | 'Moon' | 'Mars' | 'Asteroids & Dwarf Planets' | 'Deep Space'
   >('All');
   const [teleportTarget, setTeleportTarget] = useState<[number, number, number] | null>(null);
   const [resetTrigger, setResetTrigger] = useState<number>(0);
 
-  // 1:1 Artifact Inspector Toggles
   const [normalizedScale, setNormalizedScale] = useState<boolean>(false);
   const [showHotspots, setShowHotspots] = useState<boolean>(true);
   const [showAstronautScale, setShowAstronautScale] = useState<boolean>(true);
   const [activeHotspot, setActiveHotspot] = useState<MechanicalHotspot | null>(null);
 
-  // Modals (Passport & Citations)
   const [isPassportOpen, setIsPassportOpen] = useState<boolean>(false);
   const [isCitationsOpen, setIsCitationsOpen] = useState<boolean>(false);
 
-  // Strictly Scoped 1:1 AR Camera State (only allowed when tier === 'inspector' and 1:1 scale)
-  const [arPassthrough, setArPassthrough] = useState<boolean>(false);
+  const [arPassthrough, setArPassthrough] = useState<boolean>(
+    Boolean(initialDeepLink?.autoAr)
+  );
   const [arCameraError, setArCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Visited artifacts persistence
   const [visitedIds, setVisitedIds] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          if (initialDeepLink && !parsed.includes(initialDeepLink.artifact.id)) {
+            return [...parsed, initialDeepLink.artifact.id];
+          }
+          return parsed;
+        }
       }
     } catch {
       // ignore storage errors
     }
-    return ['apollo-11-eagle'];
+    return initialDeepLink
+      ? Array.from(new Set(['apollo-11-eagle', initialDeepLink.artifact.id]))
+      : ['apollo-11-eagle'];
   });
 
   useEffect(() => {
@@ -358,7 +369,6 @@ export function App() {
     setVisitedIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
   };
 
-  // Keyboard shortcut: Press 'R' to smoothly reset camera view
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement | null)?.tagName;
@@ -371,7 +381,6 @@ export function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Strictly enforce AR gating: if leaving 1:1 Inspector, exit AR immediately
   const handleSelectTier = (newTier: SpatialTier) => {
     setActiveHotspot(null);
     if (newTier !== 'inspector') {
@@ -397,6 +406,7 @@ export function App() {
     if (matching) {
       setActiveArtifact(matching);
       markVisited(matching.id);
+      playArtifactVoice(matching.id);
     }
     setActiveHotspot(null);
     setTier('trajectory');
@@ -407,6 +417,7 @@ export function App() {
     setSelectedBody(artifact.targetBody);
     setActiveHotspot(null);
     markVisited(artifact.id);
+    playArtifactVoice(artifact.id);
     if (macroMode === 'solar-system' && tier === 'orrery') {
       setTier('trajectory');
     }
@@ -430,7 +441,6 @@ export function App() {
     handleSelectArtifact(list[nextIdx]);
   };
 
-  // Manage WebRTC Camera stream when 1:1 AR Passthrough is active inside Inspector
   useEffect(() => {
     let stream: MediaStream | null = null;
 
@@ -471,7 +481,6 @@ export function App() {
 
   return (
     <div className="relative h-[100dvh] w-screen overflow-hidden bg-[#090B0E] text-white select-none font-sans">
-      {/* Live 1:1 WebRTC AR Camera Feed (Strictly Scoped to 1:1 Artifact Inspector) */}
       {isArActive && (
         <div className="fixed inset-0 z-0 overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-black">
           <video
@@ -489,7 +498,6 @@ export function App() {
         </div>
       )}
 
-      {/* Full-Viewport 3D Spatial Canvas with ACES Filmic Tone Mapping & PCF Soft Shadows */}
       <div className="relative z-10 h-full w-full">
         <Canvas
           shadows
@@ -505,7 +513,6 @@ export function App() {
             gl.shadowMap.type = THREE.PCFSoftShadowMap;
           }}
         >
-          {/* Smooth Non-Fighting OrbitControls State Machine */}
           <CameraStateMachine
             macroMode={macroMode}
             tier={tier}
@@ -515,7 +522,6 @@ export function App() {
             resetTrigger={resetTrigger}
           />
 
-          {/* ==================== MODE 1: SOLAR SYSTEM EXPLORER MODE ==================== */}
           {macroMode === 'solar-system' && tier !== 'inspector' && (
             <group>
               <SolarSystemOrrery
@@ -534,7 +540,6 @@ export function App() {
             </group>
           )}
 
-          {/* ==================== MODE 2: ORBITAL MUSEUM PLATFORM MODE ==================== */}
           {macroMode === 'museum-platform' && tier !== 'inspector' && (
             <group>
               <SpaceEnvironment />
@@ -558,7 +563,6 @@ export function App() {
             </group>
           )}
 
-          {/* ==================== TIER 3: 1:1 SCULPTURAL SURFACE / AR INSPECTOR ==================== */}
           {tier === 'inspector' && activeArtifact && (
             <PlanetaryMicroSite
               artifact={activeArtifact}
@@ -573,7 +577,6 @@ export function App() {
         </Canvas>
       </div>
 
-      {/* Cinematic Storytelling Intro & 2-Mode Launch Selector Overlay */}
       <StoryIntroOverlay
         isOpen={isIntroOpen}
         onSelectMode={(chosenMode) => {
@@ -584,10 +587,11 @@ export function App() {
           } else {
             setTier('orrery');
           }
+          const initial = activeArtifact ?? SPATIAL_ARTIFACTS[0];
+          playArtifactVoice(initial.id);
         }}
       />
 
-      {/* Minimalist Spatial Glass HUD + Sleek 2-Tab Right Drawer */}
       {!isIntroOpen && (
         <SpatialHUD
           artifacts={SPATIAL_ARTIFACTS}
@@ -622,6 +626,7 @@ export function App() {
           onToggleArPassthrough={() => setArPassthrough((prev) => !prev)}
           onResetCameraView={() => setResetTrigger((prev) => prev + 1)}
           onOpenIntro={() => {
+            stopArtifactVoice();
             setArPassthrough(false);
             setIsIntroOpen(true);
           }}
@@ -630,7 +635,6 @@ export function App() {
         />
       )}
 
-      {/* Explorer Passport & Printable Certificate Modal */}
       <ArchaeologistPassport
         isOpen={isPassportOpen}
         onClose={() => setIsPassportOpen(false)}
@@ -640,7 +644,6 @@ export function App() {
         onResetProgress={() => setVisitedIds(['apollo-11-eagle'])}
       />
 
-      {/* NASA Citations, 150-Word Summary & AI Disclosure Modal */}
       <CitationsAndAIDisclosure
         isOpen={isCitationsOpen}
         onClose={() => setIsCitationsOpen(false)}

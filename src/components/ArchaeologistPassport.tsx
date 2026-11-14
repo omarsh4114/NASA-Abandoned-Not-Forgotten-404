@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
-import { X, Award, CheckCircle2, Lock, Printer, Sparkles, RotateCcw } from 'lucide-react';
+import React from 'react';
+import {
+  Award,
+  X,
+  CheckCircle2,
+  Lock,
+  Sparkles,
+  RotateCcw,
+} from 'lucide-react';
 import type { SpatialArtifact } from '../data/artifacts';
 
 interface ArchaeologistPassportProps {
@@ -19,188 +26,103 @@ export const ArchaeologistPassport: React.FC<ArchaeologistPassportProps> = ({
   onUnlockAllDemo,
   onResetProgress,
 }) => {
-  const [studentName, setStudentName] = useState<string>('Future Space Explorer');
-
   if (!isOpen) return null;
 
-  const progressPercent = Math.round((discoveredIds.length / artifacts.length) * 100);
-
-  const moonDone = artifacts.filter((a) => a.zone === 'Moon').every((a) => discoveredIds.includes(a.id));
-  const marsDone = artifacts.filter((a) => a.zone === 'Mars').every((a) => discoveredIds.includes(a.id));
-  const deepDone = artifacts
-    .filter((a) => a.zone === 'Asteroids & Dwarf Planets' || a.zone === 'Deep Space')
-    .every((a) => discoveredIds.includes(a.id));
-
-  const badges = [
-    {
-      title: 'Moon Explorer',
-      desc: 'Visited all 4 Moon spacecraft',
-      unlocked: moonDone,
-    },
-    {
-      title: 'Mars Pioneer',
-      desc: 'Visited all 6 Mars rovers & landers',
-      unlocked: marsDone,
-    },
-    {
-      title: 'Deep Space Voyager',
-      desc: 'Visited all 3 asteroid & deep-space probes',
-      unlocked: deepDone,
-    },
-    {
-      title: 'Master Space Historian',
-      desc: 'Completed all 13 spacecraft exhibits',
-      unlocked: discoveredIds.length === artifacts.length,
-    },
-  ];
+  const count = discoveredIds.length;
+  const total = artifacts.length;
+  const rankTitle =
+    count >= total
+      ? 'Master Planetary Archaeologist'
+      : count >= 7
+      ? 'Deep-Space Telemetry Specialist'
+      : 'Junior Space Archaeologist';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-xl overflow-y-auto">
-      <div className="relative my-auto w-full max-w-3xl rounded-3xl border border-white/15 bg-slate-900/95 shadow-2xl text-left overflow-hidden">
-        {/* Clean Header */}
-        <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-400/15 border border-amber-400/30 text-amber-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+      <div className="flex max-h-[90dvh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#0B0E14] text-white shadow-2xl">
+        {/* Header */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#F97316]/40 bg-[#F97316]/15 text-[#F97316]">
               <Award className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-xs font-medium text-amber-300">
-                Explorer Passport
-              </span>
-              <h2 className="text-lg sm:text-xl font-bold text-white">
-                Your Space Exhibition Progress ({discoveredIds.length} of {artifacts.length})
+              <div className="font-mono text-[11px] uppercase tracking-wider text-[#F97316]">
+                {rankTitle}
+              </div>
+              <h2 className="text-lg font-bold text-white">
+                Space Archaeologist Passport ({count}/{total} Logged)
               </h2>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 hover:bg-white/15 hover:text-white transition cursor-pointer"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onUnlockAllDemo}
+              className="flex items-center gap-1.5 rounded-lg border border-[#38BDF8]/40 bg-[#38BDF8]/15 px-3 py-1.5 text-xs font-semibold text-[#38BDF8] hover:bg-[#38BDF8]/25 transition cursor-pointer"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Unlock All (Demo)</span>
+            </button>
+            <button
+              type="button"
+              onClick={onResetProgress}
+              className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-white/[0.1] hover:text-white transition cursor-pointer"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span>Reset</span>
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close Passport"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.12] hover:text-white cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Body */}
-        <div className="max-h-[78vh] overflow-y-auto p-6 space-y-6">
-          {/* Friendly Badges */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {badges.map((b) => (
-              <div
-                key={b.title}
-                className={`rounded-2xl border p-4 transition ${
-                  b.unlocked
-                    ? 'border-emerald-400/40 bg-emerald-500/10 text-white'
-                    : 'border-white/10 bg-white/[0.02] text-slate-400'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-white">{b.title}</span>
-                  {b.unlocked ? (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                  ) : (
-                    <Lock className="h-4 w-4 text-slate-600 shrink-0" />
-                  )}
-                </div>
-                <div className="mt-1.5 text-xs text-slate-300">{b.desc}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* 13 Spacecraft Checklist */}
-          <div>
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                13 Exhibition Spacecraft
-              </h3>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={onUnlockAllDemo}
-                  className="flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-xs font-medium text-cyan-300 hover:bg-cyan-500/20 transition cursor-pointer"
+        {/* 13 Artifact Stamps Grid */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {artifacts.map((art) => {
+              const isDiscovered = discoveredIds.includes(art.id);
+              return (
+                <div
+                  key={art.id}
+                  className={`rounded-xl border p-3.5 transition ${
+                    isDiscovered
+                      ? 'border-[#38BDF8]/40 bg-[#38BDF8]/[0.07]'
+                      : 'border-white/[0.07] bg-white/[0.02] opacity-65'
+                  }`}
                 >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Unlock All (Demo)
-                </button>
-                <button
-                  type="button"
-                  onClick={onResetProgress}
-                  className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-400 hover:text-white transition cursor-pointer"
-                >
-                  <RotateCcw className="h-3 w-3" />
-                  Reset
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
-              {artifacts.map((art) => {
-                const unlocked = discoveredIds.includes(art.id);
-                return (
-                  <div
-                    key={art.id}
-                    className={`rounded-xl border p-3 text-xs flex items-center gap-2.5 ${
-                      unlocked
-                        ? 'border-emerald-400/30 bg-emerald-500/10 text-white'
-                        : 'border-white/5 bg-white/[0.02] text-slate-500'
-                    }`}
-                  >
-                    {unlocked ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] text-[#38BDF8]">
+                      {art.zone}
+                    </span>
+                    {isDiscovered ? (
+                      <span className="inline-flex items-center gap-1 font-mono text-[10px] font-semibold text-emerald-400">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        LOGGED
+                      </span>
                     ) : (
-                      <Lock className="h-4 w-4 text-slate-600 shrink-0" />
+                      <span className="inline-flex items-center gap-1 font-mono text-[10px] text-slate-500">
+                        <Lock className="h-3 w-3" />
+                        UNVISITED
+                      </span>
                     )}
-                    <div className="truncate">
-                      <div className="font-semibold truncate text-white">{art.name.split(' (')[0]}</div>
-                      <div className="text-[11px] text-slate-400">{art.zone}</div>
-                    </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Printable Certificate */}
-          <div
-            id="printable-certificate"
-            className="rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-500/10 via-slate-900 to-slate-900 p-6 text-center space-y-4"
-          >
-            <div className="inline-block rounded-full border border-amber-400/30 bg-amber-400/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-amber-300">
-              Official NASA Space Apps Exhibition Certificate
-            </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-white">
-              Certificate of Space Exploration
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto">
-              This certifies that the explorer named below has visited the Cis-Lunar Spatial Exhibition and discovered the stories of NASA&apos;s historic spacecraft:
-            </p>
-
-            <div className="max-w-xs mx-auto">
-              <input
-                type="text"
-                value={studentName}
-                onChange={(e) => setStudentName(e.target.value)}
-                aria-label="Your Name for Certificate"
-                className="w-full border-b border-amber-400/50 bg-transparent px-4 py-1.5 text-center text-base font-bold text-amber-300 focus:outline-none"
-              />
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400 pt-1">
-              <span>Spacecraft Visited: {discoveredIds.length} / 13 ({progressPercent}%)</span>
-              <span>Team: Spaghetti Coders</span>
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-5 py-2 text-xs font-semibold text-slate-950 hover:bg-amber-300 transition cursor-pointer"
-              >
-                <Printer className="h-4 w-4" />
-                Print Certificate
-              </button>
-            </div>
+                  <h4 className="mt-2 text-xs sm:text-sm font-semibold text-white leading-snug">
+                    {art.name.split(' (')[0]}
+                  </h4>
+                  <p className="mt-1 font-mono text-[10px] text-slate-400">
+                    {art.locationName} · {art.launchYear}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
