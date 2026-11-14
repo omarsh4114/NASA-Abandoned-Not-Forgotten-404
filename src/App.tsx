@@ -289,14 +289,34 @@ const CameraStateMachine: React.FC<CameraStateMachineProps> = ({
 };
 
 export function App() {
-  const [isIntroOpen, setIsIntroOpen] = useState<boolean>(true);
+  const initialDeepLink = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    const params = new URLSearchParams(window.location.search);
+    const artId = params.get('a') ?? params.get('artifact');
+    if (!artId) return null;
+    const found = SPATIAL_ARTIFACTS.find((a) => a.id === artId);
+    if (!found) return null;
+    const autoAr = params.get('ar') === '1';
+    const openStage = autoAr || params.get('stage') === '1';
+    return {
+      artifact: found,
+      openStage,
+      autoAr,
+    };
+  }, []);
+
+  const [isIntroOpen, setIsIntroOpen] = useState<boolean>(!initialDeepLink);
   const [macroMode, setMacroMode] = useState<MacroExperienceMode>('solar-system');
-  const [tier, setTier] = useState<SpatialTier>('orrery');
+  const [tier, setTier] = useState<SpatialTier>(
+    initialDeepLink?.openStage ? 'inspector' : 'orrery'
+  );
 
   const [activeArtifact, setActiveArtifact] = useState<SpatialArtifact | null>(
-    SPATIAL_ARTIFACTS[0]
+    initialDeepLink?.artifact ?? SPATIAL_ARTIFACTS[0]
   );
-  const [selectedBody, setSelectedBody] = useState<TargetCelestialBody | null>('Moon');
+  const [selectedBody, setSelectedBody] = useState<TargetCelestialBody | null>(
+    initialDeepLink?.artifact.targetBody ?? 'Moon'
+  );
   const [zoneFilter, setZoneFilter] = useState<
     'All' | 'Moon' | 'Mars' | 'Asteroids & Dwarf Planets' | 'Deep Space'
   >('All');
@@ -311,7 +331,9 @@ export function App() {
   const [isPassportOpen, setIsPassportOpen] = useState<boolean>(false);
   const [isCitationsOpen, setIsCitationsOpen] = useState<boolean>(false);
 
-  const [arPassthrough, setArPassthrough] = useState<boolean>(false);
+  const [arPassthrough, setArPassthrough] = useState<boolean>(
+    Boolean(initialDeepLink?.autoAr)
+  );
   const [arCameraError, setArCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -320,12 +342,19 @@ export function App() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          if (initialDeepLink && !parsed.includes(initialDeepLink.artifact.id)) {
+            return [...parsed, initialDeepLink.artifact.id];
+          }
+          return parsed;
+        }
       }
     } catch {
       // ignore storage errors
     }
-    return ['apollo-11-eagle'];
+    return initialDeepLink
+      ? Array.from(new Set(['apollo-11-eagle', initialDeepLink.artifact.id]))
+      : ['apollo-11-eagle'];
   });
 
   useEffect(() => {

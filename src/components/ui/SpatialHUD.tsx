@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Orbit,
   Compass,
@@ -21,6 +21,11 @@ import {
   ImageOff,
   Volume2,
   VolumeX,
+  ExternalLink,
+  QrCode,
+  Copy,
+  Check,
+  MapPin,
 } from 'lucide-react';
 import type {
   SpatialArtifact,
@@ -37,6 +42,8 @@ import {
   stopArtifactVoice,
   useArtifactVoiceState,
 } from '../inspector/ArtifactCommsCharacter';
+import { generateQrMatrix } from '../../utils/qrCodeSvg';
+import { getNasaOrbitalProfile } from '../../utils/nasaOrbitalLinks';
 
 interface SpatialHUDProps {
   artifacts: SpatialArtifact[];
@@ -101,6 +108,9 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<DrawerTab>('story');
   const [photoStage, setPhotoStage] = useState<0 | 1 | 2>(0);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [copiedQrLink, setCopiedQrLink] = useState(false);
+  const [copiedCoords, setCopiedCoords] = useState(false);
   const [prevArtifactId, setPrevArtifactId] = useState<string | undefined>(activeArtifact?.id);
   const [prevHotspotId, setPrevHotspotId] = useState<string | undefined>(activeHotspot?.id);
 
@@ -129,6 +139,8 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
     ? NASA_HARDWARE_DATA.find((h) => h.id === activeArtifact.id) ?? NASA_HARDWARE_DATA[0]
     : null;
 
+  const orbitalProfile = activeArtifact ? getNasaOrbitalProfile(activeArtifact) : null;
+
   const isLandedSurfaceArtifact =
     activeArtifact !== null &&
     activeArtifact.zone !== 'Deep Space' &&
@@ -147,6 +159,30 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
       : nasaHardware && photoStage === 1
       ? nasaHardware.orbitalImageUrl
       : null;
+
+  const mobileArShareUrl =
+    typeof window !== 'undefined' && activeArtifact
+      ? `${window.location.origin}/?a=${encodeURIComponent(activeArtifact.id)}&ar=1`
+      : '';
+
+  const qrMatrix = useMemo(
+    () => (isQrModalOpen && mobileArShareUrl ? generateQrMatrix(mobileArShareUrl) : null),
+    [isQrModalOpen, mobileArShareUrl]
+  );
+
+  const handleCopyQrUrl = () => {
+    if (!mobileArShareUrl) return;
+    navigator.clipboard?.writeText(mobileArShareUrl);
+    setCopiedQrLink(true);
+    setTimeout(() => setCopiedQrLink(false), 2000);
+  };
+
+  const handleCopyCoords = () => {
+    if (!orbitalProfile) return;
+    navigator.clipboard?.writeText(`${orbitalProfile.formattedCoords} (${orbitalProfile.iauDatum})`);
+    setCopiedCoords(true);
+    setTimeout(() => setCopiedCoords(false), 2000);
+  };
 
   return (
     <div
@@ -242,7 +278,7 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             ))}
           </div>
 
-          {/* Right: Reset View (R), Scoped 1:1 AR Button, Passport & Sources */}
+          {/* Right: Reset View (R), Scoped 1:1 AR Button, Offline QR, Passport & Sources */}
           <div className="pointer-events-auto flex flex-nowrap md:flex-wrap items-center gap-1.5 max-w-full overflow-x-auto no-scrollbar">
             <button
               type="button"
@@ -258,23 +294,35 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
             </button>
 
             {tier === 'inspector' && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (normalizedScale) {
-                    onToggleNormalizedScale();
-                  }
-                  onToggleArPassthrough();
-                }}
-                className={`flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold whitespace-nowrap backdrop-blur-md transition cursor-pointer ${
-                  arPassthrough
-                    ? 'border-[#38BDF8] bg-[#38BDF8] text-[#090B0E]'
-                    : 'border-white/[0.08] bg-[#11141A]/90 text-slate-200 hover:border-white/25'
-                }`}
-              >
-                <Camera className="h-3.5 w-3.5 shrink-0" />
-                <span>{arPassthrough ? 'Exit AR Camera' : '1:1 AR Mode'}</span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (normalizedScale) {
+                      onToggleNormalizedScale();
+                    }
+                    onToggleArPassthrough();
+                  }}
+                  className={`flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold whitespace-nowrap backdrop-blur-md transition cursor-pointer ${
+                    arPassthrough
+                      ? 'border-[#38BDF8] bg-[#38BDF8] text-[#090B0E]'
+                      : 'border-white/[0.08] bg-[#11141A]/90 text-slate-200 hover:border-white/25'
+                  }`}
+                >
+                  <Camera className="h-3.5 w-3.5 shrink-0" />
+                  <span>{arPassthrough ? 'Exit AR Camera' : '1:1 AR Mode'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsQrModalOpen(true)}
+                  title="Zero-dependency SVG QR code to launch 1:1 Web AR on mobile"
+                  className="flex shrink-0 items-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#11141A]/90 px-2.5 py-1.5 text-xs font-medium whitespace-nowrap text-slate-200 hover:border-[#38BDF8]/50 hover:text-white backdrop-blur-md transition cursor-pointer"
+                >
+                  <QrCode className="h-3.5 w-3.5 text-[#38BDF8] shrink-0" />
+                  <span className="hidden sm:inline">Phone AR QR</span>
+                </button>
+              </>
             )}
 
             <button
@@ -380,6 +428,83 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
         )}
       </div>
 
+      {/* ==================== ZERO-DEPENDENCY SVG PHONE AR QR MODAL ==================== */}
+      {isQrModalOpen && activeArtifact && qrMatrix && (
+        <div className="pointer-events-auto fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border border-white/15 bg-[#0D1117] p-5 text-white shadow-2xl space-y-4">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <span className="font-mono text-[10px] uppercase tracking-wider text-[#38BDF8]">
+                  Direct 1:1 WebRTC AR Handshake
+                </span>
+                <h3 className="text-base font-semibold text-white mt-0.5">
+                  Anchor {activeArtifact.name.split(' (')[0]}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQrModalOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.1] hover:text-white cursor-pointer"
+                aria-label="Close QR Modal"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-center rounded-xl border border-white/10 bg-white p-4">
+              <svg
+                viewBox={`-4 -4 ${qrMatrix.size + 8} ${qrMatrix.size + 8}`}
+                className="h-48 w-48"
+                shapeRendering="crispEdges"
+                aria-label="Scannable 1:1 Web AR QR Code"
+              >
+                <rect
+                  x={-4}
+                  y={-4}
+                  width={qrMatrix.size + 8}
+                  height={qrMatrix.size + 8}
+                  fill="#FFFFFF"
+                />
+                {qrMatrix.modules.map((row, r) =>
+                  row.map((isDark, c) =>
+                    isDark ? (
+                      <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1} fill="#090B0E" />
+                    ) : null
+                  )
+                )}
+              </svg>
+            </div>
+
+            <p className="text-xs leading-relaxed text-slate-300">
+              Scan with any iOS or Android camera to open{' '}
+              <span className="font-semibold text-white">
+                {activeArtifact.name.split(' (')[0]}
+              </span>{' '}
+              at <span className="font-mono text-[#38BDF8]">{activeArtifact.dimensions.label.split(' (')[0]}</span>{' '}
+              directly in live floor AR mode.
+            </p>
+
+            <button
+              type="button"
+              onClick={handleCopyQrUrl}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] py-2 text-xs font-semibold text-white transition cursor-pointer"
+            >
+              {copiedQrLink ? (
+                <>
+                  <Check className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>Direct AR Deep-Link Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3.5 w-3.5 text-[#38BDF8]" />
+                  <span>Copy Direct 1:1 AR URL</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ==================== RIGHT-SIDE GLASS OVERLAY DRAWER ==================== */}
       {activeArtifact && nasaHardware && isDrawerOpen && (
         <aside className="pointer-events-auto fixed top-0 right-0 bottom-0 z-40 flex h-[100dvh] w-full max-w-[440px] flex-col border-l border-white/10 bg-[#0B0E14]/92 backdrop-blur-xl shadow-2xl pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
@@ -482,6 +607,50 @@ export const SpatialHUD: React.FC<SpatialHUDProps> = ({
                   artifactName={activeArtifact.name.split(' (')[0]}
                   story={OMAR_STORIES[activeArtifact.id] || activeArtifact.kidFriendlyStory}
                 />
+
+                {/* IAU Planetocentric GIS & NASA Orbital Map Bridge */}
+                {orbitalProfile && (
+                  <div className="rounded-xl border border-[#E5A93C]/35 bg-[#E5A93C]/[0.07] p-3.5 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#E5A93C]">
+                        <MapPin className="h-3 w-3" />
+                        <span>{orbitalProfile.instrumentBadge}</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleCopyCoords}
+                        className="inline-flex items-center gap-1 rounded border border-white/10 bg-black/30 px-2 py-0.5 font-mono text-[10px] text-slate-300 hover:text-white cursor-pointer"
+                        title="Copy IAU Planetocentric Coordinates"
+                      >
+                        {copiedCoords ? (
+                          <>
+                            <Check className="h-2.5 w-2.5 text-emerald-400" />
+                            <span>Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-2.5 w-2.5" />
+                            <span>{orbitalProfile.formattedCoords}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="font-mono text-[10px] text-slate-400">
+                      Datum: {orbitalProfile.iauDatum}
+                    </div>
+
+                    <a
+                      href={orbitalProfile.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between gap-2 rounded-lg border border-[#E5A93C]/40 bg-[#E5A93C]/15 px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#E5A93C]/25"
+                    >
+                      <span className="truncate">{orbitalProfile.portalName}</span>
+                      <ExternalLink className="h-3.5 w-3.5 shrink-0 text-[#E5A93C]" />
+                    </a>
+                  </div>
+                )}
 
                 {/* 2x2 Telemetry Grid: Location, Active Years, Why It Stopped, Science Unlocked */}
                 <div className="grid grid-cols-2 gap-2.5">
