@@ -1,101 +1,142 @@
-# ECHOES OF SILENCE — NASA Open Data 3D Spatial Exhibition
+<div align="center">
 
-**NASA Space Apps Challenge Cairo 2026**  
-**Challenge:** *Abandoned but Not Forgotten: Storytelling about NASA's Discarded Equipment on the Moon, Mars, and Beyond*  
-**Team:** **Spaghetti Coders**  
-- **Omar:** Team Leader, Narrative Designer & Submission Coordinator  
-- **Bashar:** NASA Planetary Data, NSSDCA/PDS Telemetry & Archival Research Lead  
-- **Youssef:** Principal Frontend, Three.js / React Three Fiber & Spatial UI Architect  
+# ECHOES OF SILENCE
+### *The Solar System's Living Museum — 1:1 Scale 3D & Web AR Exhibition*
 
-**Target Audience:** Curious students & young space explorers (Ages 10–14), educators, and museum visitors.
+[![Live Demo](https://img.shields.io/badge/LIVE_APP-Echoes_of_Silence-38BDF8?style=for-the-badge&logo=vercel&logoColor=white)](https://github.com/omarsh4114/NASA-Abandoned-Not-Forgotten-404)
+[![NASA Space Apps](https://img.shields.io/badge/NASA_Space_Apps-Cairo_2026_Submission-E5A93C?style=for-the-badge&logo=nasa&logoColor=white)](https://www.spaceappschallenge.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-10B981?style=for-the-badge)](./LICENSE)
 
----
+**Challenge:** *Abandoned but Not Forgotten: Storytelling about NASA's Discarded Equipment on the Moon and Mars*  
+**Team:** Spaghetti Coders (Omar, Bashar, and Youssef) · **Repository:** **[github.com/omarsh4114/NASA-Abandoned-Not-Forgotten-404](https://github.com/omarsh4114/NASA-Abandoned-Not-Forgotten-404)**
 
-## 1. Official 150-Word Project Summary
-
-Decades of planetary exploration have left dozens of silent NASA landers, rovers, and probes resting across our Solar System. To students aged 10–14, these inactive machines can seem like forgotten "space junk" rather than priceless scientific monuments. **Echoes of Silence** transforms 13 verified NASA spacecraft across the Moon, Mars, Asteroid 433 Eros, Dwarf Planet Ceres, and Deep Space into a three-tier interactive 3D exhibition. Visitors trace real interplanetary transfer trajectories in the **Solar System Explorer**, compare all 13 spacecraft side-by-side on the **Orbital Museum** deck, and step onto the **1:1 Surface Stage** to inspect hardware beside a true-scale `1.75m` astronaut or in live WebXR AR camera passthrough. Inside each exhibit, students toggle between historic mission photos and modern LROC/HiRISE orbital reconnaissance, inspect 3D engineering hotspots, read one-way radio light-delay telemetry, and interview each spacecraft in first person.
+</div>
 
 ---
 
-## 2. How "Echoes of Silence" Excels Across All 5 NASA Judging Criteria
+## Visual Preview
 
-| Judging Criterion | How Echoes of Silence Delivers Maximum Value |
-| :--- | :--- |
-| **1. Impact** | Reframes "discarded space hardware" as humanity's off-world archaeological heritage. Bridges STEM physics (radio light-time delay, orbital mechanics, thermal engineering) with emotional first-person storytelling tailored for ages 10–14, complete with an **Explorer Passport** and printable completion certificate for classrooms. |
-| **2. Creativity** | Combines three seamless spatial perspectives—**Solar System Orrery**, **Architectural Orbital Museum**, and **1:1 Planetary Surface Stage**—with an interactive **"Ask the Spacecraft"** first-person telemetry Q&A and a **Mission Photo vs. Orbital Recon** comparison viewer. |
-| **3. Validity** | Every coordinate, launch/end date, metric dimension (`1 Three.js unit = 1.0 meter`), failure mechanism, and one-way radio light-delay (`1.28 Light-Seconds` to `~18.6 Light-Hours`) is grounded in official NASA NSSDCA, PDS, LROC, and HiRISE archives with direct clickable citations. |
-| **4. Relevance** | Directly answers the *"Abandoned but Not Forgotten"* challenge by telling the complete lifecycle of 13 real NASA machines—how they arrived, what science they unlocked, why they fell silent (or still work passively like Apollo 11's LRRR), and how NASA orbiters monitor their resting places today. |
-| **5. Presentation** | Unified museum-grade PBR material palette (`kaptonGold`, `thermalWhite`, `titaniumDark`, `solarCellBlue`), custom GLSL atmospheric and solar corona shaders, 3D spherical crater synthesis, responsive touch/keyboard navigation (`Arrow Keys` / `WASD` / `R`), and zero-broken-asset SVG telemetry fallbacks. |
+> **Experience 13 silent NASA spacecraft at true 1:1 metric scale—from heliocentric orbital trajectories and one-way radio light-delay down to planetary surface stages and live mobile AR.**
 
----
-
-## 3. Three-Tier 3D Spatial Architecture & Winning-Edge Features
-
-1. **Mode 1 — Solar System Explorer (`Trajectory & Planetary View`):**
-   - Full 3D heliocentric orrery featuring a convecting, sunspot-active Sun with additive Fresnel corona, real continental/cloud/atmospheric Earth, 3D cratered Moon, Mars (with Valles Marineris, Olympus Mons, and polar ice caps), peanut-shaped 433 Eros, Dwarf Planet Ceres (with Occator Crater faculae), and the outer gas/ice giants.
-   - Displays color-coded transfer trajectories (`Translunar Injection`, `Hohmann Mars Transfer`, `Low-Thrust Ion Spiral`, and `Interstellar Hyperbolic Escape`) and clickable planetary landing pins.
-2. **Mode 2 — Orbital Museum (`Side-by-Side Exhibition Deck`):**
-   - Places all 13 spacecraft on illuminated museum pedestals arranged along an architectural exhibition arc so students can compare engineering designs across Moon, Mars, Asteroid Belt, and Deep Space eras.
-3. **Mode 3 — 1:1 Surface Stage (`True Metric Scale & AR Mode`):**
-   - Renders each landed spacecraft on its authentic planetary terrain (Mare Tranquillitatis regolith, Martian iron-oxide dunes, or 433 Eros chondrite saddle) alongside a **`1.75m` Astronaut scale reference** and **1:1 WebXR AR Camera Passthrough**.
-4. **"Ask the Spacecraft" Interactive Q&A Chips:**
-   - Inside every artifact's `Story` tab, students can click three curious questions (*"Why did you stop working?"*, *"What was your biggest discovery?"*, *"What does your resting place look like today?"*) to receive a first-person answer backed by a verified NASA telemetry tag.
-5. **Real-Time One-Way Radio Light-Delay & Distance Readout:**
-   - Displays the exact speed-of-light radio travel time from Earth (`1.28 Light-Seconds` for the Moon, `~14.2 Light-Minutes` for Mars, `~17.6 Light-Minutes` for 433 Eros, `~23.1 Light-Minutes` for Ceres, and `~18.6 Light-Hours` for Pioneer 10 in interstellar space).
-6. **Mission Photo vs. Orbital Reconnaissance Switcher & Offline SVG Plate:**
-   - Lets visitors switch between close-up surface/mission imagery and overhead LROC / HiRISE orbital reconnaissance, protected by an automatic SVG telemetry blueprint fallback so network hiccups never produce broken images.
+| Heliocentric Solar System, Light-Delay & Story Q&A | 1:1 Surface Stage & 1.75m Astronaut Scale Reference |
+| :---: | :---: |
+| ![Solar System Trajectory & Story Q&A](./docs/media/solar-system-tour.png) | ![1:1 Surface Stage and Astronaut Scale](./docs/media/scale-ar-stage.png) |
+| *Trace real Earth-to-target transfer trajectories, view one-way radio light-delay, and ask spacecraft first-person questions.* | *Stand beside Apollo 11's Eagle lander at true 1:1 metric scale next to a 1.75m astronaut and inspect 3D subsystem pins.* |
+| **Orbital Museum Deck (13-Spacecraft Gallery)** | **3D Solar System Explorer & Lunar Landing Sites** |
+| ![Orbital Museum Deck](./docs/media/orbital-museum-deck.png) | ![Solar System Overview](./docs/media/solar-system-overview.png) |
+| *Compare all 13 historic NASA landers, rovers, helicopters, and deep-space probes side-by-side on museum pedestals.* | *Explore verified landing pins across the Moon, Mars, Asteroid 433 Eros, Dwarf Planet Ceres, and Deep Space.* |
 
 ---
 
-## 4. Complete Catalog of All 13 Verified NASA Spacecraft
+## The Problem & Our Solution
 
-| # | Spacecraft / Artifact | Zone | Active Years | Resting Location & Coordinates | True Metric Scale (`W × D × H`) | One-Way Radio Delay | Official NSSDCA / NASA ID |
-| :-: | :--- | :--- | :---: | :--- | :--- | :--- | :--- |
-| 1 | **Apollo 11 Eagle Descent Stage** | Moon | 1969 | Tranquility Base (`0.6741° N, 23.4730° E`) | `4.20m × 4.20m × 3.20m` (9.4m span) | `1.28 Light-Seconds` | [1969-059C](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C) |
-| 2 | **Apollo 11 Laser Retroreflector (LRRR)** | Moon | 1969–Present | Tranquility Base EASEP (`0.6734° N, 23.4729° E`) | `0.46m × 0.46m × 0.30m` (100 prisms) | `1.28 Light-Seconds` | [1969-059C-04](https://nssdc.gsfc.nasa.gov/nmc/experiment/display.action?id=1969-059C-04) |
-| 3 | **Apollo 17 Lunar Roving Vehicle (LRV-3)** | Moon | 1972 | Taurus-Littrow Valley (`20.1908° N, 30.7717° E`) | `3.10m L × 1.83m W × 1.14m H` | `1.28 Light-Seconds` | [1972-096C](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1972-096C) |
-| 4 | **Surveyor 3 Robotic Lunar Lander** | Moon | 1967 (Visited 1969) | Surveyor Crater, Oceanus Procellarum (`3.0155° S, 23.4219° W`) | `4.27m Span × 3.00m H` | `1.28 Light-Seconds` | [1967-035A](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1967-035A) |
-| 5 | **Ingenuity Mars Helicopter (Ginny)** | Mars | 2020–2024 | Valinor Hills, Jezero Crater (`18.4972° N, 77.3210° E`) | `1.20m Rotor Span × 0.49m H` (1.8 kg) | `~14.2 Light-Minutes` | [Mars 2020 / Ingenuity](https://science.nasa.gov/mission/mars-2020-perseverance/ingenuity-mars-helicopter/) |
-| 6 | **Opportunity Mars Exploration Rover (MER-B)** | Mars | 2003–2018 | Perseverance Valley, Endeavour Crater (`2.2816° S, 5.3636° W`) | `1.60m L × 2.30m W × 1.50m H` | `~14.2 Light-Minutes` | [2003-032A](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-032A) |
-| 7 | **Spirit Mars Exploration Rover (MER-A)** | Mars | 2003–2010 | Site Troy, Gusev Crater (`14.5993° S, 175.5284° E`) | `1.60m L × 2.30m W × 1.50m H` | `~14.2 Light-Minutes` | [2003-027A](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-027A) |
-| 8 | **InSight Mars Geophysical Lander** | Mars | 2018–2022 | Elysium Planitia (`4.5024° N, 135.6234° E`) | `6.00m Solar Span × 1.56m × 1.08m H` | `~14.2 Light-Minutes` | [2018-042A](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2018-042A) |
-| 9 | **Phoenix Mars Polar Lander** | Mars | 2007–2008 | Green Valley, Vastitas Borealis (`68.2188° N, 125.7492° W`) | `5.50m Solar Span × 1.50m × 2.20m H` | `~14.2 Light-Minutes` | [2007-034A](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2007-034A) |
-| 10 | **Sojourner Rover & Viking 1 Lander** | Mars | 1975–1982 / 1996–1997 | Chryse Planitia & Ares Vallis (`19.33° N, 33.55° W`) | `3.0m × 2.2m × 2.1m` + `0.65m` Rover | `~14.2 Light-Minutes` | [1996-068A](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1996-068A) |
-| 11 | **NEAR Shoemaker Asteroid Orbiter/Lander** | Asteroids | 1996–2001 | Himeros Saddle, Asteroid 433 Eros (`35.0° S, 279.0° W`) | `3.80m Solar Span × 2.75m H` | `~17.6 Light-Minutes` | [1996-008A](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1996-008A) |
-| 12 | **Dawn Ion-Propulsion Orbiter** | Asteroids | 2007–2018 | Permanent Quarantine Orbit around Ceres (`2.77 AU`) | `19.70m Solar Wingspan × 1.77m H` | `~23.1 Light-Minutes` | [2007-043A](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2007-043A) |
-| 13 | **Pioneer 10/11 & Kepler Space Telescope** | Deep Space | 1972–2003 / 2009–2018 | Interstellar Trajectory (`134+ AU`) & `1.01 AU` Solar Orbit | `2.74m Dish` + `4.70m × 2.70m` Barrel | `~18.6 Light-Hours` | [1972-012A](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1972-012A) |
+**The Problem:** Decades of exploration have left historic NASA landers, rovers, and probes resting silently across the Moon, Mars, asteroids, and deep space. To students and the general public, raw coordinate tables and technical archives make these priceless scientific monuments feel like forgotten "space junk," while 2D photos hide their true human scale and vast speed-of-light distance from Earth.
+
+**Our Solution:** *Echoes of Silence* transforms **13 iconic NASA spacecraft** across **5 celestial worlds** into a zero-install, browser-based **1:1 metric-scale 3D museum and WebRTC AR experience**. Learners can fly along real orbital transfer trajectories, compare all 13 machines side-by-side, walk around them at `1:1` human scale next to a `1.75 m` astronaut, compare historic **Mission Photos** with modern **LROC / HiRISE Orbital Reconnaissance**, and interview each machine in the first person via **"Ask the Spacecraft"** interactive Q&A chips.
 
 ---
 
-## 5. Official NASA Open Data Repositories Cited
+## Designed for Every Learner (Multi-Tier Educational Impact)
 
-1. **[NASA 3D Resources (`nasa3d.arc.nasa.gov`)](https://nasa3d.arc.nasa.gov/):** Official glTF/GLB spacecraft geometry and subsystem proportions for Apollo Lunar Module, Ingenuity, InSight, Viking, Dawn, and Pioneer 10, unified with our procedural PBR museum material pipeline.
-2. **[Lunar Reconnaissance Orbiter Camera (`lroc.asu.edu`)](https://www.lroc.asu.edu/):** Narrow Angle Camera (NAC) orbital frames `M175124932R` (Apollo 11 Tranquility Base), `M168000580LR` (Apollo 17 Taurus-Littrow LRV-3), and `M114110397R` (Apollo 12 / Surveyor 3).
-3. **[Mars Reconnaissance Orbiter HiRISE (`uahirise.org`)](https://www.uahirise.org/):** High-resolution Martian surface reconnaissance frames `ESP_056972_1775` (Opportunity), `PSP_003688_1650` (Spirit), `PIA26244` (Ingenuity), `PIA23000` (InSight), `PIA13146` (Phoenix), and `PIA09105` (Pathfinder / Sojourner).
-4. **[NASA Planetary Data System (`pds.nasa.gov`)](https://pds.nasa.gov/):** Lunar Geotechnical Node (`NASA SP-238`, `NASA SP-284`), InSight SEIS Marsquake Catalog, and Small Bodies Node (NEAR Shoemaker 433 Eros XGRS and Dawn Vesta/Ceres archives).
-5. **[NASA Space Science Data Coordinated Archive (`nssdc.gsfc.nasa.gov`)](https://nssdc.gsfc.nasa.gov/):** Official international spacecraft designators, launch/end timestamps, mass/dimension specifications, and trajectory parameters.
-6. **[NASA Image and Video Library (`images.nasa.gov`)](https://images.nasa.gov/) & [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/):** Public-domain historical mission photography, Kepler transit light curves, and Deep Space Network records.
+To maximize classroom and public impact across all age brackets, *Echoes of Silence* supports three progressive discovery tiers:
 
----
-
-## 6. Mandatory AI-Use Disclosure (NASA Space Apps Compliance)
-
-In full compliance with the **NASA Space Apps Challenge Judging Guidelines**, Team **Spaghetti Coders** (Omar, Bashar, and Youssef) transparently discloses that **Google Antigravity** and **Google Gemini** were used for 3D Three.js / React Three Fiber code scaffolding, procedural planetary shader tuning, and age-appropriate (10–14) narrative copyediting. All scientific telemetry, landing/orbital coordinates, mission years, metric dimensions, and archival photographs originate from official NASA public-domain datasets and were human-verified against NASA NSSDCA, PDS, LROC, and HiRISE archives.
+| Audience Tier | Interactive Experience Inside the App | Learning Outcome |
+| :--- | :--- | :--- |
+| **1. Young Explorers (Ages 10–14)** | First-person **"Ask the Spacecraft" Q&A** (*"Why did you stop working?"*, *"What was your biggest discovery?"*), **1.75m Astronaut** size comparison, and the **13/13 Explorer Passport & Printable Certificate**. | Builds intuitive spatial scale, empathy, and excitement for space archaeology without technical jargon. |
+| **2. High School STEM & Physics** | **39 Interactive 3D Engineering Pins** (Kapton thermal blankets, RTGs, Rocker-Bogie suspension, SEIS seismometer) and **One-Way Radio Light-Delay Telemetry** (`1.28 Light-Seconds` to `~18.6 Light-Hours`). | Connects orbital mechanics, speed-of-light communication delays, and extreme planetary engineering to real missions. |
+| **3. Educators & Space Enthusiasts** | **Verified IAU Coordinates** with one-click deep links to official **NASA NSSDCA / LROC / HiRISE / PDS Archives**, **"Then vs. Now" Image Switcher**, and **Live Mobile Camera AR**. | Enables zero-install 15-minute classroom demonstrations backed by verifiable public-domain NASA records. |
 
 ---
 
-## 7. Technical Stack & Local Setup
+## How It Works (System Architecture)
 
-- **Engine & Rendering:** Three.js (`r183`), React Three Fiber (`@react-three/fiber`), `@react-three/drei`, custom GLSL atmospheric & corona shaders, and procedural canvas PBR texture/bump/roughness synthesis.
-- **Frontend & UI:** React 19, TypeScript, Tailwind CSS v4, Lucide Icons, responsive desktop/mobile HUD with keyboard camera controller (`Arrow Keys` / `WASD` / `R`).
+```mermaid
+flowchart LR
+    A["NASA Open Datasets\nNSSDCA · LROC · HiRISE · PDS · 3D Resources"] --> B["Verified Hardware Registry\nsrc/data/nasaHardware.ts"]
+    B --> C["Mode 1: Solar System Explorer\n3D Orbits · JPL Transfer Probe · Light-Delay"]
+    B --> D["Mode 2: Orbital Museum Deck\nSide-by-Side 13-Artifact Comparison"]
+    B --> E["Mode 3: 1:1 Surface Stage & Web AR\n1.75m Astronaut · 39 3D Pins · Camera AR"]
+    C --> F["Interactive Story Drawer\nAsk the Spacecraft Q&A · Then vs. Now Photos"]
+    D --> F
+    E --> F
+    F --> G["Explorer Passport (13/13)\nPrintable Graduation Certificate"]
+```
+
+### Core Technical Features
+
+* **3-Tier Seamless Spatial Navigation:** Transition smoothly between **Solar System Explorer**, **Orbital Museum Deck**, and **1:1 Surface Stage** (`R` shortcut resets camera framing at any time).
+* **1:1 True Metric Scale & WebRTC AR Passthrough:** Every spacecraft is scaled accurately in meters (`1 Three.js unit = 1 meter`) alongside an opaque **1.75m Astronaut** reference figure and can be projected into your room via live device camera AR.
+* **"Ask the Spacecraft" Interactive First-Person Q&A:** 39 student-friendly question chips across all 13 artifacts answer *why* the machine went silent, *what* it discovered, and *how* its resting site looks today—paired with verified NASA telemetry tags.
+* **Real-Time Speed-of-Light Radio Delay Readouts:** Displays the exact one-way radio light-time from Earth (`1.28 Light-Seconds` on the Moon, `~14.2–17.6 Light-Minutes` on Mars, `~23.1 Light-Minutes` at Ceres, and `~18.6 Light-Hours` in Deep Space).
+* **"Then vs. Now" Archival & Orbital Recon Switcher:** Toggle between historic surface photography and overhead LROC / MRO HiRISE reconnaissance, backed by an offline SVG NASA Telemetry Blueprint fallback so zero broken images ever occur.
+
+---
+
+## The 13 Historic Spacecraft Archive
+
+| # | Spacecraft | Celestial Destination | Verified Coordinates | True Metric Dimensions (`W × D × H`) | Primary NASA Data Source |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **01** | **Apollo 11 Lunar Module *Eagle* (Descent Stage)** | Moon · Sea of Tranquility | `0.6741° N, 23.4730° E` | `4.20m × 4.20m × 3.20m` | [LROC / NSSDCA `1969-059C`](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C) |
+| **02** | **Apollo 11 Laser Ranging Retroreflector (LRRR)** | Moon · Tranquility Base | `0.6734° N, 23.4729° E` | `0.46m × 0.46m × 0.30m` | [PDS / NSSDCA `1969-059A-04`](https://nssdc.gsfc.nasa.gov/nmc/experiment/display.action?id=1969-059A-04) |
+| **03** | **Apollo 17 Lunar Roving Vehicle (LRV-3)** | Moon · Taurus-Littrow Valley | `20.1908° N, 30.7717° E` | `3.10m × 2.06m × 1.14m` | [LROC / NSSDCA `1972-096C`](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1972-096C) |
+| **04** | **Surveyor 3 Robotic Lunar Lander** | Moon · Oceanus Procellarum | `3.0124° S, 23.4216° W` | `4.00m × 4.00m × 3.00m` | [LROC / NSSDCA `1967-035A`](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1967-035A) |
+| **05** | **Ingenuity Mars Helicopter (*Ginny*)** | Mars · Valinor Hills, Jezero Crater | `18.4447° N, 77.4508° E` | `1.20m × 1.20m × 0.49m` | [HiRISE / NSSDCA `2020-052B`](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2020-052B) |
+| **06** | **Opportunity Rover (MER-B)** | Mars · Perseverance Valley | `1.9462° S, 354.4734° E` | `2.30m × 1.60m × 1.50m` | [HiRISE / NSSDCA `2003-032A`](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-032A) |
+| **07** | **Spirit Rover (MER-A)** | Mars · Troy Sand Trap, Gusev Crater | `14.5684° S, 175.4726° E` | `2.30m × 1.60m × 1.50m` | [HiRISE / NSSDCA `2003-027A`](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-027A) |
+| **08** | **InSight Mars Geophysical Lander** | Mars · Elysium Planitia | `4.5024° N, 135.6234° E` | `6.00m × 1.56m × 1.08m` | [PDS SEIS / NSSDCA `2018-042A`](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2018-042A) |
+| **09** | **Phoenix Polar Mars Lander** | Mars · Vastitas Borealis | `68.2188° N, 234.2508° E` | `5.50m × 1.50m × 2.20m` | [HiRISE / NSSDCA `2007-034A`](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2007-034A) |
+| **10** | **Sojourner Mars Microrover** | Mars · Ares Vallis | `19.1300° N, 33.2200° W` | `0.65m × 0.48m × 0.30m` | [HiRISE / NSSDCA `1996-068A`](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1996-068A) |
+| **11** | **NEAR Shoemaker Asteroid Probe** | Asteroid · 433 Eros (Himeros Saddle) | `35.0° S, 324.0° E` | `1.70m × 1.70m × 2.75m` | [PDS SBN / NSSDCA `1996-008A`](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1996-008A) |
+| **12** | **Dawn Ion Propulsion Spacecraft** | Dwarf Planet · 1 Ceres Orbit | `24.0° N, 145.0° E (Orbit)` | `19.70m × 1.60m × 2.36m` | [PDS SBN / NSSDCA `2007-043A`](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2007-043A) |
+| **13** | **Kepler Space Telescope** | Deep Space · Earth-Trailing Orbit | `1.05 AU Heliocentric` | `2.70m × 2.70m × 4.70m` | [Exoplanet Archive / `2009-011A`](https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2009-011A) |
+
+---
+
+## Classroom STEM Activity (15-Minute Guided Lab)
+
+1. **Human Scale Comparison:** Open **Apollo 11 *Eagle*** (`4.20m × 3.20m`) and **Sojourner Microrover** (`0.65m × 0.30m`) in **1:1 Surface Stage** with the **1.75m Astronaut** enabled. Compare their dimensions—which rover is the size of a microwave oven?
+2. **Speed-of-Light Delay:** Switch to **Solar System Explorer** and compare the one-way radio signal delay between the Moon (`1.28 Light-Seconds`), Mars (`~14.2 Light-Minutes`), and Deep Space (`~18.6 Light-Hours`). Why couldn't engineers steer Mars rovers with a live joystick?
+3. **Engineering Failure Analysis:** Open **More Info** on **Opportunity Rover** or **Ingenuity** and click the **"Ask the Spacecraft"** Q&A chips to discover how Martian dust storms and thin `1%` atmospheric density ended their historic missions.
+
+---
+
+## Local Setup & Project Structure
+
+```text
+├── docs/media/                     # Live application screenshots for GitHub storefront
+├── public/models/                  # Official NASA .glb spacecraft meshes
+├── src/
+│   ├── components/
+│   │   ├── solar-system/           # Heliocentric 3D Solar System, Planets & JPL Transfer Probe
+│   │   ├── stage/                  # Orbital Museum Deck & 1:1 Planetary Surface Stage
+│   │   ├── models/                 # Unified 13 Spacecraft PBR Assemblies & 1.75m Astronaut
+│   │   ├── ui/                     # SpatialHUD, Story/Hotspots Drawer & Ask-the-Spacecraft Q&A
+│   │   ├── ArchaeologistPassport.tsx
+│   │   └── CitationsAndAIDisclosure.tsx
+│   ├── data/
+│   │   └── nasaHardware.ts         # Verified telemetry, coordinates, Q&A & NASA archive links
+│   └── types/
+│       └── hardware.ts             # TypeScript schema for artifacts, hotspots & Q&A
+├── AI_DISCLOSURE.md                # Mandatory NASA Space Apps AI/SI transparency statement
+├── NASA_DATA_SOURCES.md            # Official NASA Open Data & GIS citations
+└── LICENSE                         # MIT Open-Source License
+```
 
 ```bash
-# Install dependencies
+# 1. Install dependencies
 npm install
 
-# Launch local development server at http://localhost:5173
+# 2. Start local development server
 npm run dev
 
-# Run TypeScript verification and build production bundle into dist/
+# 3. Type-check and build production bundle
 npm run build
 ```
+
+---
+
+## Governance & Transparency
+
+* **NASA Data Citations:** Full dataset references are documented in [`NASA_DATA_SOURCES.md`](./NASA_DATA_SOURCES.md).
+* **AI Usage Disclosure:** Full transparency on development tools is documented in [`AI_DISCLOSURE.md`](./AI_DISCLOSURE.md).
+* **Open-Source License:** Released under the [`MIT License`](./LICENSE).
