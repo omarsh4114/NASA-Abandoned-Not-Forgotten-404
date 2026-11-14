@@ -16,6 +16,13 @@ export interface EngineeringHotspot {
   statusNote: string;
 }
 
+export interface SpacecraftQAItem {
+  id: string;
+  question: string;
+  answer: string;
+  telemetryTag: string;
+}
+
 export interface NasaArtifact {
   id: string;
   name: string;
@@ -25,16 +32,20 @@ export interface NasaArtifact {
   endYear: string;
   coordinates: string;
   locationName: string;
+  radioLightDelay: string;
+  surfaceEnvironment: string;
   kidFriendlyStory: string;
   whyItStopped: string;
   scienceUnlocked: string;
   nasaDataSource: string;
+  nasaSourceUrl: string;
   missionImageUrl: string;
   orbitalImageUrl: string;
   model3dUrl: string;
   glbUrl?: string;
   labType: LabType;
   hotspots: EngineeringHotspot[];
+  askSpacecraftQA: SpacecraftQAItem[];
 }
 
 export interface ModelViewerProps

@@ -39,10 +39,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: '1969',
     coordinates: '0.67408° N, 23.47297° E',
     locationName: 'Tranquility Base, Mare Tranquillitatis',
+    radioLightDelay: '1.28 Light-Seconds from Earth',
+    surfaceEnvironment: '0.166 g Lunar Gravity · +120°C Day / -130°C Night · Hard Vacuum',
     kidFriendlyStory: OMAR_STORIES['apollo-11-eagle'],
     whyItStopped: 'The descent stage served as the launch pad for the Apollo 11 Ascent Stage on July 21, 1969. Once Neil Armstrong and Buzz Aldrin lifted off to rendezvous with Columbia, Eagle descent stage batteries and hypergolic systems had fulfilled their design life, leaving the stage permanently stationed on the lunar surface.',
     scienceUnlocked: 'Proved humanity could soft-land on another celestial world, anchored the first lunar surface science package (EASEP), and enabled collection of 21.55 kg of pristine lunar regolith and breccia samples.',
     nasaDataSource: 'NASA Planetary Data System (PDS) Lunar Geotechnical Data, Apollo 11 Mission Report (NASA SP-238), LROC Narrow Angle Camera Frame M175124932R.',
+    nasaSourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C',
     missionImageUrl: 'https://images-assets.nasa.gov/image/as11-40-5927/as11-40-5927~medium.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001880/GSFC_20171208_Archive_e001880~medium.jpg',
     model3dUrl: '/models/Apollo_Lunar_Module.glb',
@@ -73,6 +76,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         functionDescription: 'Stainless steel plaque affixed between ladder rungs stating: "Here men from the planet Earth first set foot upon the Moon July 1969, A.D. We came in peace for all mankind."',
         statusNote: 'Mounted securely to the ladder strut beneath Kapton thermal shielding; completely undisturbed.'
       }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'eagle-q1',
+        question: 'Why did you stop working?',
+        answer: 'My job was to land Neil and Buzz safely and then serve as their launchpad home! On July 21, 1969, when their upper cabin blasted off from my shoulders with less than 25 seconds of landing fuel to spare, my silver-zinc batteries went quiet with my mission 100% complete.',
+        telemetryTag: 'NASA SP-238 · ASCENT LIFTOFF 17:54 UTC · TRANQUILITY BASE'
+      },
+      {
+        id: 'eagle-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'I proved human beings could land on another world and helped my crew gather 21.55 kilograms of ancient volcanic basalt rocks—revealing that the Sea of Tranquility was once an ocean of glowing lava 3.8 billion years ago!',
+        telemetryTag: 'NSSDCA 1969-059C · 21.55 KG LUNAR BASALT & BRECCIA SAMPLES'
+      },
+      {
+        id: 'eagle-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'NASA’s Lunar Reconnaissance Orbiter photographed me from just 24 km overhead! My amber Kapton foil still gleams in the sun, and you can clearly see the dark trails of Neil and Buzz’s bootprints circling my four footpads in the airless dust.',
+        telemetryTag: 'LROC NAC FRAME M175124932R · 0.6741° N, 23.4730° E'
+      }
     ]
   },
   {
@@ -84,10 +107,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: 'Present (Operational)',
     coordinates: '0.67337° N, 23.47352° E',
     locationName: 'Tranquility Base Science Sector, Mare Tranquillitatis',
+    radioLightDelay: '1.28 Light-Seconds from Earth (2.56s Round-Trip)',
+    surfaceEnvironment: '0.166 g Lunar Gravity · Passive Fused-Silica Optical Array',
     kidFriendlyStory: OMAR_STORIES['alsep-retroreflector'],
     whyItStopped: 'It never stopped. Designed with zero electronics, internal wiring, or chemical batteries, the passive fused-silica corner-cube prisms continue to bounce laser pulses sent from Earth observatories back to their origin point after over five decades.',
     scienceUnlocked: 'Determined that the Moon is spiraling away from Earth at 3.8 cm/year, proved the Moon possesses a liquid outer core, and provided rigorous experimental confirmation of Einstein’s General Theory of Relativity (Equivalence Principle).',
     nasaDataSource: 'NASA Goddard Space Flight Center Laser Ranging Data Network, Apollo 11 Science Report (NASA SP-214), Apache Point Observatory Lunar Laser-ranging Operation (APOLLO).',
+    nasaSourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/experiment/display.action?id=1969-059C-04',
     missionImageUrl: 'https://images-assets.nasa.gov/image/PIA13037/PIA13037~small.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001880/GSFC_20171208_Archive_e001880~medium.jpg',
     model3dUrl: '',
@@ -118,6 +144,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         functionDescription: 'Shadow-casting pin used by Buzz Aldrin to orient the array azimuth and elevation precisely toward Earth.',
         statusNote: 'Cast shadow continuously rotates across the faceplate with each 29.5-day synodic lunar cycle.'
       }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'lrrr-q1',
+        question: 'Why did you stop working?',
+        answer: 'Surprise—I never stopped working! Because I am made of 100 ultra-pure quartz corner mirrors with zero wires, motors, or batteries to wear out, I still bounce green laser flashes back to Earth observatories every clear night!',
+        telemetryTag: 'NSSDCA 1969-059C-04 · PASSIVE OPTICAL ARRAY · ACTIVE 55+ YEARS'
+      },
+      {
+        id: 'lrrr-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'By timing laser photons making the 2.56-second round trip from Earth to my mirrors and back, I proved that the Moon is slowly spiraling away from Earth by 3.8 centimeters every year—and that a fluid core sloshes deep inside the Moon!',
+        telemetryTag: 'APOLLO LASER RANGING · +3.8 CM/YR RECESSION · MILLIMETER PRECISION'
+      },
+      {
+        id: 'lrrr-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'I sit level in the gray regolith just 18 meters southwest of the Eagle descent stage. A fine whisper of electrostatic Moon dust coats my aluminum frame, but my recessed quartz prisms still catch the blue glow of Earth high in my sky.',
+        telemetryTag: 'LROC NAC M175124932R · 0.6734° N, 23.4729° E · EASEP SECTOR'
+      }
     ]
   },
   {
@@ -129,10 +175,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: '1972',
     coordinates: '20.1311° N, 30.7773° E',
     locationName: 'Taurus-Littrow Valley VIP Site (Apollo 17)',
+    radioLightDelay: '1.28 Light-Seconds from Earth',
+    surfaceEnvironment: '0.166 g Lunar Gravity · Sculptured Highlands & Regolith',
     kidFriendlyStory: OMAR_STORIES['apollo-lrv'],
     whyItStopped: 'Parked intentionally by Commander Gene Cernan at the "VIP site" ~140 meters east of the Challenger Lunar Module so its ground-controlled television camera could record the ascent stage liftoff. Its non-rechargeable 36-volt silver-zinc batteries depleted shortly after.',
     scienceUnlocked: 'Dramatically extended astronaut surface exploration range up to 35.7 km, enabling geological sampling across the Taurus-Littrow sculptured hills and the collection of ancient volcanic orange soil beads.',
     nasaDataSource: 'NASA MSFC Lunar Roving Vehicle Operations Handbook (LS006-002-2H), LROC NAC Frame M168000580LR, NASA PDS Apollo Lunar Surface Journal.',
+    nasaSourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1972-096C',
     missionImageUrl: 'https://images-assets.nasa.gov/image/as17-147-22527/as17-147-22527~medium.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001882/GSFC_20171208_Archive_e001882~small.jpg',
     model3dUrl: '',
@@ -163,6 +212,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         functionDescription: 'Emergency regolith fender extension fabricated by Cernan and Schmitt from laminated lunar photo maps and gray duct tape after an accidental hammer collision.',
         statusNote: 'Historic field repair artifact; tape adhesive brittle from 50+ years of extreme thermal cycling.'
       }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'lrv-q1',
+        question: 'Why did you stop working?',
+        answer: 'Commander Gene Cernan parked me 140 meters east of the Challenger lander so my remote-controlled TV camera could film their rocket blasting off! Once I broadcast that historic liftoff to Earth, my two 36-volt silver-zinc batteries peacefully drained.',
+        telemetryTag: 'NASA MSFC LS006-002-2H · 35.74 KM DRIVEN · 72 V SILVER-ZINC'
+      },
+      {
+        id: 'lrv-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'I carried geologist Harrison Schmitt and Gene Cernan across craters to Shorty Crater, where we found glowing orange volcanic glass beads—proving that fiery lava fountains erupted on the Moon 3.6 billion years ago!',
+        telemetryTag: 'APOLLO 17 SAMPLE 74220 · PYROCLASTIC ORANGE GLASS BEADS'
+      },
+      {
+        id: 'lrv-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'I sit parked in the majestic Taurus-Littrow mountain valley, flanked by peaks taller than the Grand Canyon! My twin parallel wheel tracks still wind across the valley floor exactly where we drove in December 1972.',
+        telemetryTag: 'LROC NAC M168000580LR · 20.1908° N, 30.7717° E · VIP PARKING SITE'
+      }
     ]
   },
   {
@@ -174,10 +243,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: '1967 (Visited 1969)',
     coordinates: '3.015° S, 23.418° W',
     locationName: 'Surveyor Crater, Oceanus Procellarum',
+    radioLightDelay: '1.28 Light-Seconds from Earth',
+    surfaceEnvironment: '0.166 g Lunar Gravity · Inside 200m Crater Slope',
     kidFriendlyStory: OMAR_STORIES['surveyor-3'],
     whyItStopped: 'Batteries discharged after surviving the freezing two-week lunar night in May 1967 following transmission of 6,315 television frames. In November 1969, Apollo 12 executed a pinpoint landing 160 meters away, and Pete Conrad and Alan Bean retrieved key components for forensic analysis.',
     scienceUnlocked: 'Conducted the first robotic mechanical trenching on lunar soil, verifying load-bearing capacity for human Apollo landings; returned components delivered the only human forensic study of multi-year space environmental exposure on hardware.',
     nasaDataSource: 'NASA JPL Surveyor 3 Mission Report (JPL-TR-32-1177), Analysis of Surveyor 3 Materials (NASA SP-284), LROC NAC Frame M114110397R.',
+    nasaSourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1967-035A',
     missionImageUrl: 'https://images-assets.nasa.gov/image/as12-48-7121/as12-48-7121~medium.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001881/GSFC_20171208_Archive_e001881~medium.jpg',
     model3dUrl: '',
@@ -208,6 +280,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         functionDescription: 'Original structural mount that held the vidicon optical camera tube and color filter wheel.',
         statusNote: 'Cut with bolt cutters by Apollo 12 astronauts; camera returned to Earth and now displayed at the Smithsonian National Air and Space Museum.'
       }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'surveyor-q1',
+        question: 'Why did you stop working?',
+        answer: 'After sending 6,315 television pictures and digging trenches for two weeks in April 1967, the sun sank below the horizon. During the freezing 14-day lunar night (-150°C), my battery heaters ran out of energy and I went to sleep.',
+        telemetryTag: 'JPL-TR-32-1177 · 6,315 TV FRAMES · LUNAR NIGHT TERMINATION'
+      },
+      {
+        id: 'surveyor-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'With my motorized scissor scoop, I dug 18-centimeter trenches in the Ocean of Storms and proved the Moon was firm enough to hold heavy spaceships—clearing the way for Apollo astronauts to land safely!',
+        telemetryTag: 'NASA SP-284 · SOIL BEARING STRENGTH 0.7 KG/CM² VERIFIED'
+      },
+      {
+        id: 'surveyor-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'I rest on the inner slope of Surveyor Crater, surrounded by two sets of footprints—my own trench marks from 1967 and the bootprints of Apollo 12 astronauts Pete Conrad and Alan Bean, who walked over in 1969 to bring my camera home!',
+        telemetryTag: 'LROC NAC M114110397R · 3.0155° S, 23.4219° W · OCEANUS PROCELLARUM'
+      }
     ]
   },
   {
@@ -219,10 +311,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: '2024',
     coordinates: '18.4446° N, 77.4508° E',
     locationName: 'Valinor Hills, Jezero Crater',
+    radioLightDelay: '~14.2 Light-Minutes from Earth',
+    surfaceEnvironment: '0.38 g Mars Gravity · 1% Earth Atmosphere Density · -90°C Nights',
     kidFriendlyStory: OMAR_STORIES['ingenuity-helicopter'],
     whyItStopped: 'During Flight 72 on January 18, 2024, navigating featureless sandy terrain caused optical navigation imaging errors; during an emergency landing, one or more carbon-fiber rotor blades struck the surface and fractured, rendering sustained aerodynamic flight impossible.',
     scienceUnlocked: 'First powered, controlled flight on another planet (72 flights, 17.0 km traveled, 128.8 cumulative flight minutes in an atmosphere only 1% of Earth’s density); revolutionized planetary robotics by proving aerial scouting for rovers.',
     nasaDataSource: 'NASA JPL Mars Helicopter Technology Demonstration Archive, PDS Mars 2020 Mission Archive, HiRISE Jezero Crater Orthoimagery.',
+    nasaSourceUrl: 'https://science.nasa.gov/mission/mars-2020-perseverance/ingenuity-mars-helicopter/',
     missionImageUrl: 'https://images-assets.nasa.gov/image/PIA24486/PIA24486~small.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/PIA26244/PIA26244~small.jpg',
     model3dUrl: '/models/Ingenuity_Mars_Helicopter.glb',
@@ -253,6 +348,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         functionDescription: 'Black-and-white downward camera tracking surface feature displacement at 30 fps combined with a 54-meter laser altimeter.',
         statusNote: 'Lens intact and pointed down at the rippled sand of Valinor Hills.'
       }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'ginny-q1',
+        question: 'Why did you stop working?',
+        answer: 'On Flight 72 in January 2024, I flew over smooth sand dunes with almost no rocks for my downward camera to track. When I made a hard touchdown, my spinning rotor blade tips clipped the slope and snapped—ending my flying days!',
+        telemetryTag: 'JPL FLIGHT 72 LOG · JAN 18, 2024 · ROTOR TIP FRACTURE'
+      },
+      {
+        id: 'ginny-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'I proved that heavier-than-air aircraft can fly in an alien atmosphere 100 times thinner than Earth’s! Instead of just 5 test flights, I completed 72 flights over 17 kilometers, scouting ancient river delta cliffs for Perseverance.',
+        telemetryTag: 'NASA PDS MARS 2020 · 72 FLIGHTS · 128.8 CUMULATIVE FLIGHT MINUTES'
+      },
+      {
+        id: 'ginny-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'I stand upright on the sandy ripples of Valinor Hills inside Jezero Crater! Even though I can never fly again, my solar panel still wakes up my computer each morning to record Martian temperatures like a weather station.',
+        telemetryTag: 'HIRISE PIA26244 · 18.4972° N, 77.3210° E · VALINOR HILLS'
+      }
     ]
   },
   {
@@ -264,10 +379,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: '2018',
     coordinates: '2.348° S, 354.674° E',
     locationName: 'Perseverance Valley, Endeavour Crater',
+    radioLightDelay: '~14.2 Light-Minutes from Earth',
+    surfaceEnvironment: '0.38 g Mars Gravity · Hematite Plains & Crater Rim',
     kidFriendlyStory: OMAR_STORIES['opportunity-rover'],
     whyItStopped: 'A catastrophic planet-encircling dust storm in June 2018 blocked out sunlight (atmospheric opacity tau exceeded 10.8), preventing solar panels from recharging its lithium-ion batteries and driving the rover into permanent low-power sleep.',
     scienceUnlocked: 'Traveled 45.16 km over 14.8 years (original mission: 90 days); discovered hematite "blueberries" and sulfate rock veins proving persistent liquid water once flowed on ancient Mars.',
     nasaDataSource: 'NASA PDS Mars Exploration Rover (MER) Opportunity Archive, JPL MER Science Reports, HiRISE Frame ESP_056972_1775.',
+    nasaSourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-032A',
     missionImageUrl: 'https://images-assets.nasa.gov/image/PIA20285/PIA20285~small.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/PIA22728/PIA22728~medium.jpg',
     model3dUrl: '',
@@ -298,6 +416,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         functionDescription: 'Dual multispectral color camera assembly standing 1.5 meters tall providing 360-degree stereo views of the Martian terrain.',
         statusNote: 'Perched high overlooking the sweeping floor of Endeavour Crater.'
       }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'oppy-q1',
+        question: 'Why did you stop working?',
+        answer: 'In June 2018, the worst planet-wide dust storm ever recorded wrapped around Mars and turned day into pitch-black night (tau > 10.8). Without sunlight to charge my solar wings or run my survival heaters, I fell into a deep sleep.',
+        telemetryTag: 'JPL MER-B SOL 5111 · OPACITY TAU > 10.8 · JUNE 10, 2018'
+      },
+      {
+        id: 'oppy-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'I discovered millions of tiny iron-rich mineral spheres nicknamed "blueberries" (hematite) and ancient clay veins along Endeavour Crater—proving that warm, drinkable liquid water once pooled across Mars!',
+        telemetryTag: 'NASA PDS MER-B · 45.16 KM MARATHON · HEMATITE & CLAY VEINS'
+      },
+      {
+        id: 'oppy-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'I rest partway down Perseverance Valley on the western rim of giant 22-kilometer-wide Endeavour Crater, dusted in rust-red iron oxide and looking out over the ancient basin I spent years exploring.',
+        telemetryTag: 'HIRISE ESP_056972_1775 · 2.2816° S, 5.3636° W · ENDEAVOUR CRATER'
+      }
     ]
   },
   {
@@ -309,10 +447,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: '2010',
     coordinates: '14.5684° S, 175.4726° E',
     locationName: 'Troy, West Valley, Gusev Crater',
+    radioLightDelay: '~14.2 Light-Minutes from Earth',
+    surfaceEnvironment: '0.38 g Mars Gravity · Volcanic Basalt & Sulfate Sand',
     kidFriendlyStory: OMAR_STORIES['spirit-rover'],
     whyItStopped: 'In May 2009, Spirit\'s wheels broke through a crusty sulfur surface layer and became ensnarled in hidden soft sand at site "Troy". Unable to tilt its dust-coated solar arrays toward the low winter sun, it ceased communication on March 22, 2010.',
     scienceUnlocked: 'Discovered 90% pure silica deposits in Home Plate volcanic soils—unequivocal evidence of ancient hydrothermal fumaroles or hot springs conducive to microbial life.',
     nasaDataSource: 'NASA PDS MER Spirit Science Archive, JPL Mars Exploration Reports, HiRISE Frame PSP_003688_1650.',
+    nasaSourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-027A',
     missionImageUrl: 'https://images-assets.nasa.gov/image/PIA05500/PIA05500~small.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/PIA08802/PIA08802~medium.jpg',
     model3dUrl: '',
@@ -343,6 +484,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         functionDescription: 'Steerable directional antenna pointing directly toward NASA Deep Space Network receiver dishes on Earth.',
         statusNote: 'Frozen in its final orientation facing the northern sky of Gusev Crater.'
       }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'spirit-q1',
+        question: 'Why did you stop working?',
+        answer: 'While driving beside Home Plate in 2009, my wheels broke through a thin crust into hidden powdery sand called "Troy." Stuck at an angle, I couldn’t tilt my dusty solar wings toward the weak winter sun, and I sent my last message in March 2010.',
+        telemetryTag: 'JPL MER-A SOL 2210 · LAST SIGNAL MARCH 22, 2010 · SITE TROY'
+      },
+      {
+        id: 'spirit-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'When my right-front wheel jammed, I had to drive backward and drag it like a plow! That dragging wheel scraped away the red dirt and uncovered 90% pure white silica—proof of ancient volcanic hot springs where tiny microbes could have lived!',
+        telemetryTag: 'NASA PDS MER-A · HOME PLATE OPALINE SILICA · HYDROTHERMAL EVIDENCE'
+      },
+      {
+        id: 'spirit-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'I sit nestled in the soft sulfate sand on the western edge of the Home Plate plateau inside Gusev Crater, with the Columbia Hills—the very first mountain ever climbed by a robot on Mars—rising right behind me.',
+        telemetryTag: 'HIRISE PSP_003688_1650 · 14.5684° S, 175.4726° E · GUSEV CRATER'
+      }
     ]
   },
   {
@@ -354,10 +515,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: '2022',
     coordinates: '4.502° N, 135.623° E',
     locationName: 'Elysium Planitia',
+    radioLightDelay: '~14.2 Light-Minutes from Earth',
+    surfaceEnvironment: '0.38 g Mars Gravity · Equatorial Plain · 1,319 Marsquakes Logged',
     kidFriendlyStory: OMAR_STORIES['insight-lander'],
     whyItStopped: 'Four years of relentless atmospheric dust accumulation thick as a coin on its dual 2.2-meter solar panels reduced electrical output from 5,000 watt-hours to under 285 watt-hours per sol until contact was lost in December 2022.',
     scienceUnlocked: 'Detected over 1,319 Marsquakes, mapped Mars\' crust thickness (24–72 km), confirmed a liquid iron-nickel core radius of ~1,830 km, and measured real-time meteorite impact acoustic shockwaves.',
     nasaDataSource: 'NASA PDS InSight Geophysical Data Node, IPGP SEIS Seismology Data Archive, HiRISE Elysium Planitia Series.',
+    nasaSourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2018-042A',
     missionImageUrl: 'https://images-assets.nasa.gov/image/PIA22872/PIA22872~small.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/PIA23000/PIA23000~small.jpg',
     model3dUrl: '/models/InSight_Cruise_Lander_(arm_deployed).glb',
@@ -388,6 +552,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         functionDescription: 'Self-hammering mechanical spike designed to burrow 3 to 5 meters underground to measure core heat escaping from Mars.',
         statusNote: 'Partially buried ~30 cm down due to unexpectedly clumping cohesive soil duricrust.'
       }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'insight-q1',
+        question: 'Why did you stop working?',
+        answer: 'Instead of turning off my seismometer early to save battery, my scientists asked me to keep listening to Marsquakes until my very last drop of energy! By December 2022, red dust covered my round solar fans so thickly that I peacefully powered down.',
+        telemetryTag: 'JPL INSIGHT SOL 1440 · DEC 15, 2022 · SOLAR OUTPUT < 285 WH/SOL'
+      },
+      {
+        id: 'insight-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'By feeling 1,319 Marsquakes rumble through the planet, I took the first "ultrasound" of Mars’s deep interior—revealing a layered rocky crust and a giant liquid iron-alloy core 1,830 kilometers in radius!',
+        telemetryTag: 'PDS SEIS CATALOG · 1,319 MARSQUAKES · CORE RADIUS 1,830 KM'
+      },
+      {
+        id: 'insight-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'I stand on the quiet, flat volcanic plain of Elysium Planitia with my robotic arm stretched out in front of me and my shiny copper-gold SEIS dome resting right on the ground like a stethoscope.',
+        telemetryTag: 'HIRISE PIA23000 · 4.5024° N, 135.6234° E · ELYSIUM PLANITIA'
+      }
     ]
   },
   {
@@ -399,10 +583,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: '2008',
     coordinates: '68.2188° N, 234.2508° E',
     locationName: 'Green Valley, Vastitas Borealis',
+    radioLightDelay: '~14.2 Light-Minutes from Earth',
+    surfaceEnvironment: '0.38 g Mars Gravity · Martian Arctic Permafrost (-120°C Winter)',
     kidFriendlyStory: OMAR_STORIES['phoenix-lander'],
     whyItStopped: 'Designed for Martian polar summer; as winter approached, sunlight vanished and temperatures dropped below -120°C. Vast amounts of carbon dioxide frozen into dry ice encased the lander, and the weight of the ice sheet snapped its solar arrays.',
     scienceUnlocked: 'Dug into the arctic Martian permafrost and directly imaged chunks of water-ice sublimating in sunlight; identified perchlorate salts and calcium carbonate indicating liquid water past.',
     nasaDataSource: 'NASA PDS Mars Phoenix Lander Archive, University of Arizona Lunar and Planetary Laboratory, HiRISE Polar Imaging Series.',
+    nasaSourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2007-034A',
     missionImageUrl: 'https://images-assets.nasa.gov/image/KSC-07PD-1085/KSC-07PD-1085~medium.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/PIA13146/PIA13146~medium.jpg',
     model3dUrl: '',
@@ -433,6 +620,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         functionDescription: 'Laser radar system that pulsed green laser beams into the sky to detect high-altitude Martian water-ice cirrus clouds and falling snow.',
         statusNote: 'Mast intact; verified snow falling from Martian clouds before the polar night set in.'
       }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'phoenix-q1',
+        question: 'Why did you stop working?',
+        answer: 'I landed near Mars’s freezing North Pole during arctic summer. After 5 months of non-stop science, the polar sun sank below the horizon for winter, temperatures plunged below -120°C, and hundreds of kilograms of heavy dry-ice frost buried me.',
+        telemetryTag: 'JPL PHOENIX SOL 152 · NOV 2, 2008 · POLAR WINTER CO2 FROST'
+      },
+      {
+        id: 'phoenix-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'I dug just 5 centimeters beneath the red soil and struck a solid sheet of glittering white water ice! I baked that ice in my miniature TEGA ovens to taste real Martian water and watched snow fall from Martian clouds with my laser.',
+        telemetryTag: 'NASA PDS PHOENIX TEGA · SUBSURFACE H2O ICE & CALCIUM CARBONATE'
+      },
+      {
+        id: 'phoenix-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'Every Martian winter, a thick blanket of frozen carbon dioxide encases me on the polygonal permafrost plains of Green Valley, and HiRISE orbital photos show one of my round solar wings bowed down into the arctic soil.',
+        telemetryTag: 'HIRISE PIA13146 · 68.2188° N, 125.7492° W · VASTITAS BOREALIS'
+      }
     ]
   },
   {
@@ -444,10 +651,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: '1997 / 1982',
     coordinates: '19.33° N, 326.45° E',
     locationName: 'Ares Vallis Floodplain & Chryse Planitia',
+    radioLightDelay: '~14.2 Light-Minutes from Earth',
+    surfaceEnvironment: '0.38 g Mars Gravity · Outflow Floodplain Boulders',
     kidFriendlyStory: OMAR_STORIES['sojourner-viking'],
     whyItStopped: 'Mars Pathfinder / Sojourner ceased transmission on September 27, 1997 due to a dead lander main battery causing cold-induced electronics failure. Sojourner dutifully circled the silent base station. Viking 1 Lander operated until November 1982 when a human uplink command accidentally overwrote antenna telemetry.',
     scienceUnlocked: 'First micro-rover to explore Mars; conducted Alpha Proton X-ray Spectrometer (APXS) analysis of Martian rocks (e.g., "Barnacle Bill"), confirming ancient cataclysmic water outflow channels in Ares Vallis.',
     nasaDataSource: 'NASA PDS Mars Pathfinder Archive, NASA Ames Viking Science Archive, JPL Deep Space Historical Data.',
+    nasaSourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1996-068A',
     missionImageUrl: 'https://images-assets.nasa.gov/image/PIA01122/PIA01122~small.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/PIA09105/PIA09105~medium.jpg',
     model3dUrl: '/models/Viking_Lander.glb',
@@ -478,6 +688,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         functionDescription: 'Triangular lander base petal that unfolded after airbag impact, housing primary radio relay transmitters.',
         statusNote: 'Solar cells permanently dark; structure fully visible in HiRISE orbital imagery.'
       }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'sojourner-q1',
+        question: 'Why did you stop working?',
+        answer: 'After 83 Martian days, my base station Pathfinder’s rechargeable battery wore out in the freezing cold. Because my safety instructions told me to circle my base station if it ever went quiet, I dutifully drove in circles around Pathfinder waiting for a signal!',
+        telemetryTag: 'NSSDCA 1996-068A · SOL 83 FINAL SIGNAL · SEPT 27, 1997'
+      },
+      {
+        id: 'sojourner-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'Viking 1 sent humanity’s first ground-level photos of Mars in 1976, and I became the very first wheeled rover on Mars in 1997—using my X-ray nose to inspect rounded boulders swept down Ares Vallis by ancient mega-floods!',
+        telemetryTag: 'PDS PATHFINDER APXS · "BARNACLE BILL" & "YOGI" ROCK ANALYSIS'
+      },
+      {
+        id: 'sojourner-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'I rest beside the unfolded solar petals of the Carl Sagan Memorial Station in the boulder-strewn Ares Vallis valley, while Viking 1 stands upright across the plain in Chryse Planitia.',
+        telemetryTag: 'HIRISE PIA09105 · 19.33° N, 33.55° W · ARES VALLIS & CHRYSE PLANITIA'
+      }
     ]
   },
   {
@@ -489,10 +719,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: '2001',
     coordinates: '43.0° S, 279.0° E',
     locationName: 'Himeros Depression Saddle, Asteroid 433 Eros',
+    radioLightDelay: '~17.6 Light-Minutes from Earth',
+    surfaceEnvironment: '0.0006 g Microgravity · Stony Chondrite Asteroid Surface',
     kidFriendlyStory: OMAR_STORIES['near-shoemaker'],
     whyItStopped: 'After completing its orbital survey of near-Earth asteroid 433 Eros, mission controllers directed the spacecraft to make a gentle 1.9 m/s descent onto the rocky surface on February 12, 2001. Though never designed as a lander, it survived and transmitted surface X-ray spectrometry until its signal was terminated on February 28, 2001.',
     scienceUnlocked: 'First spacecraft to orbit and land on an asteroid; mapped 433 Eros\' irregular shape, gravity field, and composition, revealing it to be an un-differentiated primitive stony chondrite from the birth of the Solar System.',
     nasaDataSource: 'NASA PDS Small Bodies Node (SBN) NEAR Archive, Johns Hopkins Applied Physics Laboratory (JHU/APL) Mission Data.',
+    nasaSourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1996-008A',
     missionImageUrl: 'https://images-assets.nasa.gov/image/PIA18177/PIA18177~medium.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/PIA02474/PIA02474~small.jpg',
     model3dUrl: '',
@@ -523,6 +756,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         functionDescription: 'Laser diode altimeter that bounced light off the asteroid surface to construct 3D elevation maps of Eros with meter accuracy.',
         statusNote: 'Optics preserved in cold space vacuum on the asteroid surface.'
       }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'near-q1',
+        question: 'Why did you stop working?',
+        answer: 'I wasn’t even built with landing legs! After orbiting Asteroid 433 Eros for a year, my fuel was nearly gone, so engineers gently touched me down on the tips of my solar panels on February 12, 2001. I beamed bonus surface data for 16 days before freezing.',
+        telemetryTag: 'JHU/APL NEAR LOG · 1.6 M/S TOUCHDOWN · FEB 28, 2001 FINAL SIGNAL'
+      },
+      {
+        id: 'near-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'I took 160,000 close-up photos of peanut-shaped 433 Eros and used my gamma-ray sensor right on the ground to prove Eros is an ancient, unmelted stony building block from the birth of the Solar System 4.5 billion years ago!',
+        telemetryTag: 'PDS SMALL BODIES NODE · 160,000 IMAGES · PRIMITIVE CHONDRITE'
+      },
+      {
+        id: 'near-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'I sit perched on the edge of a dusty boulder pond inside the Himeros saddle on 433 Eros, riding a 33-kilometer-long space rock that tumbles end-over-end every 5.27 hours as it orbits the Sun!',
+        telemetryTag: 'NSSDCA 1996-008A · 35.0° S, 279.0° W · ASTEROID 433 EROS'
+      }
     ]
   },
   {
@@ -534,10 +787,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: '2018',
     coordinates: 'Perpetual Stable Orbit: 35 km to 4,000 km altitude',
     locationName: 'Frozen Orbit around Dwarf Planet Ceres (Asteroid Belt)',
+    radioLightDelay: '~23.1 Light-Minutes from Earth',
+    surfaceEnvironment: 'Zero-G Quarantine Orbit Above Dwarf Planet Ceres (2.77 AU)',
     kidFriendlyStory: OMAR_STORIES['dawn-spacecraft'],
     whyItStopped: 'On October 31, 2018, Dawn exhausted its hydrazine attitude-control propellant, losing the ability to orient its solar panels to the sun or aim its high-gain antenna to Earth. Planetary protection protocols placed Dawn in an ultra-stable gravitational orbit around Ceres, guaranteed not to collide for at least 50+ years.',
     scienceUnlocked: 'First spacecraft to orbit two separate extraterrestrial destinations (Vesta and Ceres); discovered ancient subsurface brine reservoirs, organic molecules, and the famous glowing sodium-carbonate salt deposits in Occator Crater.',
     nasaDataSource: 'NASA PDS Dawn Mission to Vesta & Ceres Node, JPL Dawn Flight Science Reports, Ceres Occator Crater High-Resolution Mapping.',
+    nasaSourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2007-043A',
     missionImageUrl: 'https://images-assets.nasa.gov/image/PIA12033/PIA12033~medium.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/PIA22477/PIA22477~medium.jpg',
     model3dUrl: '/models/Dawn.glb',
@@ -568,6 +824,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         functionDescription: 'German Aerospace Center (DLR) cameras that mapped the geomorphology of Vesta and the glowing bright faculae of Ceres.',
         statusNote: 'Optics intact, peering out into deep space around Ceres.'
       }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'dawn-q1',
+        question: 'Why did you stop working?',
+        answer: 'After 11 years flying across 6.9 billion kilometers, I used up the last drop of my hydrazine thruster fuel on October 31, 2018. Without it, I could no longer point my antenna toward Earth or turn my giant solar wings toward the Sun.',
+        telemetryTag: 'JPL DAWN MISSION END · OCT 31, 2018 · HYDRAZINE DEPLETION'
+      },
+      {
+        id: 'dawn-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'Powered by blue-glowing xenon ion engines, I became the only spacecraft ever to orbit two alien worlds—Vesta and Ceres! Inside Ceres’s Occator Crater, I discovered dazzling white salt domes left behind by an underground briny ocean.',
+        telemetryTag: 'PDS DAWN ARCHIVE · OCCATOR CRATER FACULAE · SUBSURFACE BRINE'
+      },
+      {
+        id: 'dawn-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'To protect Ceres’s icy world from contamination, NASA placed me in a safe quarantine orbit! Today I glide silently around dwarf planet Ceres as a permanent artificial moon with my 19.7-meter solar wings outstretched.',
+        telemetryTag: 'NSSDCA 2007-043A · CERES QUARANTINE ORBIT · 2.77 AU'
+      }
     ]
   },
   {
@@ -579,10 +855,13 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
     endYear: '2003 / 2018',
     coordinates: 'Pioneer: 130+ AU outward toward Aldebaran | Kepler: Heliocentric Earth-Trailing Orbit (1 AU)',
     locationName: 'Interstellar Deep Space & Heliocentric Drift Orbit',
+    radioLightDelay: '~18.6 Light-Hours from Earth (Pioneer 10 at 134 AU)',
+    surfaceEnvironment: 'Interstellar Medium & Heliocentric Drift · 2.7 K Cosmic Background',
     kidFriendlyStory: OMAR_STORIES['pioneer-kepler'],
     whyItStopped: 'Pioneer 10\'s Radioisotope Thermoelectric Generators (RTGs) gradually decayed past functional threshold; its last faint whisper was received January 23, 2003 as it coasted toward Taurus. Kepler ran completely out of onboard attitude thruster fuel in October 2018 after surveying over 530,500 stars, and was placed into a safe, permanent heliocentric drift orbit.',
     scienceUnlocked: 'Pioneer 10 was the first spacecraft to navigate the asteroid belt, fly past Jupiter, and achieve Solar System escape velocity, carrying Carl Sagan\'s iconic Golden Plaque. Kepler revolutionized astrophysics by detecting 2,662 confirmed exoplanets using high-precision transit photometry, proving planets outnumber stars in the galaxy.',
     nasaDataSource: 'NASA Exoplanet Archive (Kepler Mission Data), NASA Ames Research Center Kepler Light Curve Archive, NASA PDS Pioneer 10/11 Deep Space Trajectory Data.',
+    nasaSourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1972-012A',
     missionImageUrl: 'https://images-assets.nasa.gov/image/ARC-1972-AC72-2135/ARC-1972-AC72-2135~medium.jpg',
     orbitalImageUrl: 'https://images-assets.nasa.gov/image/PIA01402/PIA01402~small.jpg',
     model3dUrl: '/models/Pioneer_10.glb',
@@ -612,6 +891,26 @@ export const NASA_HARDWARE_DATA: NasaArtifact[] = [
         yPercent: 70,
         functionDescription: '6x9 inch plaque designed by Carl Sagan showing human figures, hydrogen spin-transition benchmark, and pulsar time map pointing back to Earth.',
         statusNote: 'Shielded from interstellar cosmic rays, remaining legible for billions of years.'
+      }
+    ],
+    askSpacecraftQA: [
+      {
+        id: 'pioneer-q1',
+        question: 'Why did you stop working?',
+        answer: 'Pioneer 10’s nuclear RTG power source slowly faded after 30 years in deep space, sending its last faint radio whisper from 12.2 billion km away in January 2003. Kepler retired in October 2018 after using its last drop of fuel hunting alien worlds.',
+        telemetryTag: 'DSN 70M ANTENNA · JAN 23, 2003 FINAL WHISPER · KEPLER OCT 30, 2018'
+      },
+      {
+        id: 'pioneer-q2',
+        question: 'What was your biggest discovery?',
+        answer: 'Pioneer 10 was the first ship to cross the Asteroid Belt and fly past giant Jupiter! Decades later, Kepler stared at 530,500 stars and discovered over 2,662 confirmed exoplanets—proving our galaxy has more planets than stars!',
+        telemetryTag: 'NASA EXOPLANET ARCHIVE · 2,662 CONFIRMED EXOPLANETS · JUPITER FLYBY'
+      },
+      {
+        id: 'pioneer-q3',
+        question: 'What does your resting place look like today?',
+        answer: 'We never stopped moving! Pioneer 10 is hurtling through interstellar darkness at 43,000 km/h over 20 billion km from Earth, carrying Carl Sagan’s Golden Plaque toward the red star Aldebaran as a message in a bottle from humanity.',
+        telemetryTag: 'NSSDCA 1972-012A · 134+ AU INTERSTELLAR TRAJECTORY · TAURUS'
       }
     ]
   }
