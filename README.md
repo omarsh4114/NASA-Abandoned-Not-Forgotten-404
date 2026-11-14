@@ -1,14 +1,14 @@
 <div align="center">
 
 # ECHOES OF SILENCE
-### *The Solar System's Living Museum — 1:1 Scale 3D & Web AR Exhibition*
+### *The Solar System's Living Museum – 1:1 Scale 3D & Web AR Exhibition*
 
-[![Live Demo](https://img.shields.io/badge/LIVE_APP-Echoes_of_Silence-38BDF8?style=for-the-badge&logo=vercel&logoColor=white)](https://github.com/omarsh4114/NASA-Abandoned-Not-Forgotten-404)
+[![Live App](https://img.shields.io/badge/LIVE_APP-spaghetti--coders.vercel.app-38BDF8?style=for-the-badge&logo=vercel&logoColor=white)](https://spaghetti-coders.vercel.app)
 [![NASA Space Apps](https://img.shields.io/badge/NASA_Space_Apps-Cairo_2026_Submission-E5A93C?style=for-the-badge&logo=nasa&logoColor=white)](https://www.spaceappschallenge.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-10B981?style=for-the-badge)](./LICENSE)
 
-**Challenge:** *Abandoned but Not Forgotten: Storytelling about NASA's Discarded Equipment on the Moon and Mars*  
-**Team:** Spaghetti Coders (Omar, Bashar, and Youssef) · **Repository:** **[github.com/omarsh4114/NASA-Abandoned-Not-Forgotten-404](https://github.com/omarsh4114/NASA-Abandoned-Not-Forgotten-404)**
+**Challenge:** *Abandoned but not Forgotten: Storytelling about NASA's Discarded Equipment on the Moon and Mars*  
+**Team:** Spaghetti Coders (Omar, Bashar, and Youssef) · **Repository:** [GitHub Repository](https://github.com/omarsh4114/NASA-Abandoned-Not-Forgotten-404)
 
 </div>
 
